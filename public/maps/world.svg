@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1400" width="2000" height="1400">
+  <defs>
+    <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="4" seed="7"/><feDisplacementMap in="SourceGraphic" scale="60"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.15  0 0 0 0.12 0"/></filter>
+  </defs>
+  <rect width="2000" height="1400" fill="#b9c2b4"/>
+  <g filter="url(#rough)">
+    <path d="M250 500 Q500 180 950 260 Q1400 120 1750 380 Q1900 700 1650 1050 Q1300 1280 850 1180 Q400 1250 260 950 Z" fill="#e6d7b0" stroke="#6b5a3a" stroke-width="5"/>
+    <path d="M1350 250 Q1500 330 1620 480" fill="none" stroke="#8a7650" stroke-width="26" stroke-linecap="round" stroke-dasharray="4 30"/>
+    <path d="M420 560 Q560 760 640 900 Q700 1050 760 1200" fill="none" stroke="#8fa3a0" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  <rect width="2000" height="1400" filter="url(#grain)"/>
+  <rect x="20" y="20" width="1960" height="1360" fill="none" stroke="#6b5a3a" stroke-width="4"/>
+  <text x="1000" y="1340" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="34" fill="#6b5a3a">Carte provisoire — en attente du monde véritable</text>
+</svg>
