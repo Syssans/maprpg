@@ -27,6 +27,8 @@ export interface Place {
   /** Coordonnées en pixels sur l'image de la carte (origine en haut à gauche) */
   x: number;
   y: number;
+  /** Région ou royaume, affiché au-dessus du nom */
+  region?: string;
   description: string;
   /** Carte de niveau inférieur dans laquelle on peut entrer depuis ce lieu */
   enters?: string;
@@ -41,6 +43,8 @@ export interface MapDef {
   image: string;
   width: number;
   height: number;
+  /** Les noms figurent déjà sur l'image : on n'étiquette que les lieux utiles au joueur */
+  printedLabels?: boolean;
   /** Lieu d'arrivée quand on entre sur cette carte */
   entry: string;
   /** Carte de niveau supérieur (absente pour la carte du monde) */

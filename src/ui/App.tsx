@@ -56,6 +56,7 @@ export function App() {
 
         {tab === 'carte' && !player.dialogue && (
           <section className="sheet">
+            {place.region && <small className="region">{place.region}</small>}
             <h2>{place.name}</h2>
             <p>{seen ? place.description : 'Vous ne connaissez de ce lieu que le nom.'}</p>
             <div className="actions">

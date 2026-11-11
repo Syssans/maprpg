@@ -1,12 +1,17 @@
-# MapRPG
+# Le Sanctuaire et la Tempête
 
 RPG d'exploration et de dialogue, joué sur une carte. Webapp pensée d'abord pour
 le mobile, utilisable aussi sur ordinateur. Les personnages et les lieux ne sont
 pas représentés : la carte et le texte suffisent, le reste appartient au joueur.
 
-> Le monde actuellement jouable (« Le Pays », le Bourg, la quête de la borne) est
-> un **contenu de démonstration** destiné à éprouver le moteur. Il sera remplacé
-> par l'univers et la carte véritables.
+## État du contenu
+
+- **Carte du monde** : version première, dix-neuf villes placées, An 666.
+  Estarec n'est pas accessible.
+- **Descriptions** : tirées du dossier de présentation. Celles marquées
+  `// d'après la carte` dans `src/content/index.ts` attendent le texte de l'auteur.
+- **Chemins** : hypothèse de travail, à corriger.
+- **Assise** (plan et scène du Conseil) : ébauche à réécrire.
 
 ## Lancer
 

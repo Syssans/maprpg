@@ -76,3 +76,5 @@ button.primary { background: var(--ink); color: var(--paper); border-color: var(
 .tabs { display: flex; background: var(--ink); padding-bottom: env(safe-area-inset-bottom); }
 .tabs button { flex: 1; min-height: 50px; background: none; border: none; border-top: 2px solid transparent; color: var(--paper); opacity: .55; font-size: 15px; letter-spacing: .06em; }
 .tabs button.on { opacity: 1; border-top-color: var(--paper-deep); }
+.region { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2px; }
+.place span:empty { display: none; }

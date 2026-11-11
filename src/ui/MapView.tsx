@@ -88,7 +88,9 @@ export function MapView({ map, known, current, reachable, selected, onSelect }: 
         .filter(Boolean)
         .join(' ');
       const label = document.createElement('span');
-      label.textContent = p.name;
+      const labelled =
+        !map.printedLabels || p.id === current || p.id === selected || reachable.includes(p.id);
+      if (labelled) label.textContent = p.name;
       const icon = L.divIcon({
         className: '',
         iconSize: [0, 0],

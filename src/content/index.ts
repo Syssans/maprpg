@@ -1,6 +1,10 @@
-// CONTENU DE DÉMONSTRATION — à remplacer par l'univers véritable.
-// Il ne sert qu'à éprouver le moteur : deux niveaux de carte, une quête,
-// un objet, des dialogues à embranchements.
+// L'univers du « Sanctuaire et la Tempête », An 666.
+//
+// Sources : le dossier de présentation et la carte du monde (version première).
+// - Les descriptions marquées « d'après la carte » ne s'appuient que sur le dessin :
+//   elles attendent le texte de l'auteur.
+// - Les chemins sont une hypothèse de travail, à corriger.
+// - Le plan d'Assise et la scène du Conseil sont une ébauche à réécrire.
 import type { World } from '../engine/types';
 
 const base = import.meta.env.BASE_URL;
@@ -11,238 +15,329 @@ export const world: World = {
   maps: {
     monde: {
       id: 'monde',
-      name: 'Le Pays',
-      image: `${base}maps/world.svg`,
+      name: 'Le continent',
+      image: `${base}maps/monde.jpg`,
       width: 2000,
-      height: 1400,
-      entry: 'gue',
+      height: 1564,
+      printedLabels: true,
+      entry: 'assise',
       places: [
+        // ——— Nord de l'Aînée ———
         {
-          id: 'gue',
-          name: 'Le Gué',
-          x: 620,
-          y: 860,
+          id: 'col-carnem',
+          name: 'Col Carnem',
+          x: 245,
+          y: 252,
+          region: 'Blanche Sévérie',
           description:
-            "La rivière s'étale ici sur des galets clairs. Une barque à fond plat attend, bien que l'eau ne monte pas au genou.",
-          dialogue: 'passeur',
-          actionLabel: 'Parler au passeur',
+            "Capitale de la République du Nord, sur des terres glacées. Sa puissance militaire est sans égale. Au-delà s'arrête le monde praticable.",
         },
         {
-          id: 'bourg',
-          name: 'Le Bourg',
+          id: 'vilpiere',
+          name: 'Vilpière',
+          x: 433,
+          y: 355,
+          region: 'Verte Sévérie',
+          // d'après la carte
+          description:
+            "Là où la neige cède aux plaines forestières. Un peuple cosmopolite y vit sous l'autorité de Col Carnem.",
+        },
+        {
+          id: 'bordemer',
+          name: 'Bordemer',
+          x: 314,
+          y: 685,
+          region: 'Les Lacs',
+          description:
+            "La ville que fondèrent les mères exilées. D'ici, les Hommes jetèrent le premier pont au-dessus de l'Aînée. Il n'en reste rien.",
+        },
+        {
+          id: 'rive-claire',
+          name: 'Rive Claire',
+          x: 488,
+          y: 680,
+          region: 'Les Lacs',
+          description:
+            "Le grenier du continent s'arrête ici, au bord de la crevasse. Ses ponts sont le seul passage entre le Nord et le Sud.",
+        },
+        {
+          id: 'courveil',
+          name: 'Courveil',
+          x: 718,
+          y: 546,
+          region: 'Hautes Plaines',
+          // d'après la carte
+          description: "Une ville de fleuve, à la lisière des Lacs et des Hautes Plaines.",
+        },
+        {
+          id: 'terner',
+          name: 'Terner',
+          x: 906,
+          y: 415,
+          region: 'Hautes Plaines',
+          description: "Capitale d'un royaume tranquille : on y vit d'élevage et de pêche en eaux froides.",
+        },
+        {
+          id: 'mortneuve',
+          name: 'Mortneuve',
+          x: 988,
+          y: 329,
+          region: 'Hautes Plaines',
+          // d'après la carte
+          description: "Un port du nord-est, à l'embouchure d'un fleuve, face à la mer froide.",
+        },
+        {
+          id: 'noctem',
+          name: 'Noctem',
+          x: 915,
+          y: 645,
+          region: 'Hautes Plaines',
+          description:
+            "La dernière société elfique organisée, et son unique place forte. Sous ses montagnes s'étend la Mer Éternelle, grotte-cathédrale où pleut la neige fondue.",
+        },
+
+        // ——— Sud de l'Aînée ———
+        {
+          id: 'lastille',
+          name: 'Lastille',
+          x: 500,
+          y: 718,
+          region: 'Valore',
+          description: "La jumelle sud de Rive Claire, de l'autre côté des ponts. Ici commence le plateau de Valore.",
+        },
+        {
+          id: 'assise',
+          name: 'Assise',
+          x: 155,
+          y: 768,
+          region: 'Valore',
+          description:
+            "La ville du Conseil Continental, née de la réconciliation du Nord et du Sud. On y débat de tout, et d'abord de la question elfique.",
+          enters: 'assise',
+        },
+        {
+          id: 'freteaux',
+          name: 'Fréteaux',
+          x: 186,
+          y: 955,
+          region: 'Valore',
+          // d'après la carte
+          description: "Un port de la côte ouest, à l'embouchure d'un fleuve descendu des montagnes.",
+        },
+        {
+          id: 'dirgue',
+          name: 'Dirgue',
+          x: 331,
+          y: 1066,
+          region: 'Valore',
+          // d'après la carte
+          description: "La dernière ville de Valore avant l'Alyr.",
+        },
+        {
+          id: 'tissin',
+          name: 'Tissin',
+          x: 312,
+          y: 1148,
+          region: 'Alyr occidental',
+          description: "On la connaît pour son tunnel troglodyte, long de douze kilomètres sous la montagne.",
+        },
+        {
+          id: 'rosebourg',
+          name: 'Rosebourg',
+          x: 708,
+          y: 1075,
+          region: 'Alyr septentrional',
+          // d'après la carte
+          description: "Une ville au confluent des fleuves de l'Alyr, sur la route de Calnire.",
+        },
+        {
+          id: 'allen',
+          name: 'Allen',
           x: 1000,
-          y: 620,
-          description:
-            "Une enceinte basse, plus ancienne que ceux qui l'habitent. On y entre par une seule porte, qu'on ne ferme plus.",
-          enters: 'bourg',
+          y: 875,
+          region: 'Alyr oriental',
+          // d'après la carte
+          description: "Un port de la côte est, tourné vers une mer que plus personne ne traverse.",
         },
         {
-          id: 'borne',
-          name: 'La Borne',
-          x: 1320,
-          y: 880,
+          id: 'calnire',
+          name: 'Calnire',
+          x: 886,
+          y: 1127,
+          region: 'Alyr',
           description:
-            "Une pierre dressée au milieu d'un pré. L'herbe est couchée d'un côté, comme si l'on avait traîné quelque chose de lourd.",
-          dialogue: 'borne',
-          actionLabel: 'Examiner la pierre',
+            "La cité blanche des rois, fermée et méfiante. De ses murailles, on voit la mer là où aurait dû se dresser Salande — et, désormais, les difformités de la Tempête.",
         },
         {
-          id: 'col',
-          name: 'Le Col',
-          x: 1500,
-          y: 420,
-          description:
-            "Le chemin monte jusqu'ici, puis redescend vers des terres que la carte ne montre pas encore.",
+          id: 'selene',
+          name: 'Sélène',
+          x: 830,
+          y: 1322,
+          region: 'Alyr',
+          // d'après la carte
+          description: "Une ville entre le lac et la forêt, au sud de Calnire.",
+        },
+        {
+          id: 'sevirin',
+          name: 'Sévirin',
+          x: 670,
+          y: 1370,
+          region: 'Alyr central',
+          // d'après la carte
+          description: "Un port de la côte sud, au débouché du désert.",
+        },
+        {
+          id: 'portvilla',
+          name: 'Portvilla',
+          x: 460,
+          y: 1375,
+          region: 'Alyr méridional',
+          // d'après la carte
+          description: "Un port à l'extrémité sud du continent.",
         },
       ],
       routes: [
-        ['gue', 'bourg'],
-        ['bourg', 'borne'],
-        ['bourg', 'col'],
+        // Nord
+        ['col-carnem', 'vilpiere'],
+        ['vilpiere', 'rive-claire'],
+        ['bordemer', 'rive-claire'],
+        ['rive-claire', 'courveil'],
+        ['courveil', 'terner'],
+        ['courveil', 'noctem'],
+        ['terner', 'mortneuve'],
+        ['terner', 'noctem'],
+        // Les ponts : seul passage au-dessus de l'Aînée
+        ['rive-claire', 'lastille'],
+        // Sud
+        ['lastille', 'assise'],
+        ['assise', 'freteaux'],
+        ['freteaux', 'dirgue'],
+        ['dirgue', 'tissin'],
+        ['tissin', 'portvilla'],
+        ['dirgue', 'rosebourg'],
+        ['lastille', 'rosebourg'],
+        ['rosebourg', 'calnire'],
+        ['calnire', 'allen'],
+        ['calnire', 'selene'],
+        ['selene', 'sevirin'],
+        ['sevirin', 'portvilla'],
       ],
     },
 
-    bourg: {
-      id: 'bourg',
-      name: 'Le Bourg',
-      image: `${base}maps/bourg.svg`,
+    // ÉBAUCHE — plan provisoire, en attendant une carte d'Assise.
+    assise: {
+      id: 'assise',
+      name: 'Assise',
+      image: `${base}maps/assise.svg`,
       width: 1200,
       height: 900,
-      entry: 'porte',
+      entry: 'portes',
       parent: 'monde',
       places: [
         {
-          id: 'porte',
-          name: 'La Porte',
-          x: 250,
-          y: 700,
-          description: "Deux battants de chêne, ouverts depuis si longtemps que le lierre les tient au mur.",
+          id: 'portes',
+          name: 'Les portes de la ville',
+          x: 380,
+          y: 560,
+          description: "On entre à Assise comme on entre en séance : en déclinant d'abord qui l'on représente.",
         },
         {
-          id: 'marche',
-          name: 'La Place',
-          x: 560,
-          y: 470,
+          id: 'conseil',
+          name: 'Le Conseil Continental',
+          x: 800,
+          y: 340,
           description:
-            "On y vend peu, on y parle beaucoup. Chacun sait à qui appartient le pré de la borne, et personne ne dit la même chose.",
-        },
-        {
-          id: 'archives',
-          name: 'Les Archives',
-          x: 880,
-          y: 300,
-          description: "Une salle voûtée qui sent la poussière et la cire. Les registres y sont plus nombreux que les lecteurs.",
-          dialogue: 'archiviste',
-          actionLabel: "Parler à l'archiviste",
+            "Depuis la réconciliation, le Nord et le Sud s'y parlent au lieu de se battre. Personne n'y est d'accord, et c'est ce qui tient la paix.",
+          dialogue: 'seance',
+          actionLabel: 'Prendre place',
         },
       ],
-      routes: [
-        ['porte', 'marche'],
-        ['marche', 'archives'],
-      ],
+      routes: [['portes', 'conseil']],
     },
   },
 
-  items: {
-    cadastre: {
-      id: 'cadastre',
-      name: 'Feuillet de cadastre',
-      description:
-        "Un relevé ancien du pré. La borne y figure, à trente pas de l'endroit où elle se dresse aujourd'hui. Le nom du commanditaire a été gratté.",
-    },
-  },
+  items: {},
 
   quests: {
-    borne: {
-      id: 'borne',
-      title: 'La borne déplacée',
+    seance: {
+      id: 'seance',
+      title: 'La séance',
       stages: {
-        enquete:
-          "Le passeur affirme que la borne du pré a changé de place. Les archives du Bourg conservent peut-être un relevé plus ancien.",
-        decider:
-          "Le cadastre place la borne ailleurs. Reste à savoir ce que vaut un tracé dont personne ne se souvient. La pierre attend dans le pré.",
+        entendu:
+          "Au Conseil, un délégué du Sud a parlé du Fléau comme d'une affaire classée. Le représentant de Noctem n'a rien répondu.",
+        soeur:
+          "Le représentant de Noctem a enterré sa sœur, devenue fléotique. Ce que la doctrine nomme un fait d'histoire, il l'appelle par un prénom qu'il ne vous a pas dit.",
       },
-      epilogue: "La question du pré est tranchée, du moins pour cette génération.",
     },
   },
 
+  // ÉBAUCHE — d'après la piste de scène du dossier : le vieux représentant de Noctem
+  // entend les humains parler du Fléau comme d'un fait historique.
+  // Le joueur est l'Inquisiteur ; aucun personnage n'est encore nommé.
   dialogues: {
-    passeur: {
-      id: 'passeur',
+    seance: {
+      id: 'seance',
       start: [
-        { if: { questNotStarted: 'borne' }, node: 'accueil' },
-        { if: { questDone: 'borne' }, node: 'apres' },
-        { node: 'attente' },
+        { if: { questNotStarted: 'seance' }, node: 'ouverture' },
+        { if: { questStage: ['seance', 'entendu'] }, node: 'retour' },
+        { node: 'vide' },
       ],
       nodes: {
-        accueil: {
-          speaker: 'Le passeur',
-          text: "Vous allez au Bourg ? Alors vous entendrez parler du pré. La borne a bougé cet hiver. Ceux d'amont disent qu'on l'a remise à sa place, ceux d'aval qu'on la leur a volée.",
+        ouverture: {
+          text: "Vous avez dit ce matin le nom d'Huma, comme chaque matin, et vous prenez votre place parmi les représentants. On débat de la Loi Pourpre. On en débat depuis si longtemps que les phrases sont usées aux coudes.",
+          choices: [{ text: 'Écouter.', next: 'delegue' }],
+        },
+        delegue: {
+          speaker: 'Un délégué du Sud',
+          text: "Le Fléau appartient à l'histoire. Nous en parlons comme nos aïeux parlaient des grandes crues : avec respect, et avec la ferme intention de ne plus bâtir au bord de l'eau.",
           choices: [
-            { text: 'Et qui dit vrai ?', next: 'vrai' },
-            { text: "Pourquoi une barque, si l'on passe à pied ?", next: 'barque' },
-            { text: "J'irai voir.", next: 'mission' },
+            { text: 'Approuver de la tête. La doctrine ne dit pas autre chose.', next: 'regard' },
+            { text: 'Regarder comment la salle reçoit ces mots.', next: 'regard' },
           ],
         },
-        vrai: {
-          speaker: 'Le passeur',
-          text: "Les deux, sans doute. Une frontière n'est vraie que tant que tout le monde la croit au même endroit. Depuis cet hiver, plus personne ne croit la même chose.",
+        regard: {
+          text: "Au banc de Noctem, un vieil Elfe écoute sans bouger. Il ne proteste pas. Il a l'air d'un homme à qui l'on décrit sa propre maison, et qui ne la reconnaît pas.",
+          effects: [{ questStage: ['seance', 'entendu'] }],
           choices: [
-            { text: "Pourquoi une barque, si l'on passe à pied ?", next: 'barque' },
-            { text: "J'irai voir.", next: 'mission' },
+            { text: "Aller le trouver quand la séance s'interrompt.", next: 'approche' },
+            { text: 'Rester à votre place.' },
           ],
         },
-        barque: {
-          speaker: 'Le passeur',
-          text: "On ne me paie pas pour traverser. On me paie pour qu'il y ait quelqu'un qui sache qui a traversé.",
+        retour: {
+          text: "La séance est suspendue. Le représentant de Noctem est resté assis à son banc, seul, les mains à plat sur le bois.",
+          choices: [{ text: 'Aller le trouver.', next: 'approche' }, { text: 'Le laisser.' }],
+        },
+        approche: {
+          speaker: 'Le représentant de Noctem',
+          text: "Inquisiteur. Vous venez m'expliquer ce que j'ai entendu, ou me demander ce que j'en pense ?",
           choices: [
-            { text: 'Et qui dit vrai, pour la borne ?', next: 'vrai' },
-            { text: "J'irai voir.", next: 'mission' },
+            { text: "Vous l'expliquer. La Loi ne tue personne.", next: 'doctrine' },
+            { text: 'Vous le demander.', next: 'soeur' },
           ],
         },
-        mission: {
-          speaker: 'Le passeur',
-          text: "Voyez d'abord les archives. La pierre, elle, ne vous dira rien : elle est là où on l'a mise.",
-          effects: [{ questStage: ['borne', 'enquete'] }],
+        doctrine: {
+          speaker: 'Le représentant de Noctem',
+          text: "Non. Elle attend. C'est une loi patiente, je vous l'accorde. Vous croyez ce que vous dites, n'est-ce pas ? C'est ce qui me rend la chose difficile.",
+          choices: [{ text: 'À quoi pensiez-vous, pendant qu’il parlait ?', next: 'soeur' }],
         },
-        attente: {
-          speaker: 'Le passeur',
-          text: "Toujours ce pré ? Prenez votre temps. Il n'a pas bougé, lui.",
+        soeur: {
+          speaker: 'Le représentant de Noctem',
+          text: "À ma sœur. Elle a d'abord cessé de dormir. Puis elle s'est mise à compter les torts qu'on lui avait faits, et il y en avait de plus en plus. À la fin, elle ne savait plus mon nom. Je l'ai enterrée moi-même. Votre collègue appelle cela l'histoire.",
+          effects: [{ questStage: ['seance', 'soeur'] }],
+          choices: [
+            { text: 'Huma veille sur elle.', next: 'huma' },
+            { text: 'Ne rien dire.', next: 'silence' },
+          ],
         },
-        apres: {
-          speaker: 'Le passeur',
-          text: "On m'a raconté ce que vous avez fait. On me l'a raconté de trois façons, déjà.",
+        huma: {
+          speaker: 'Le représentant de Noctem',
+          text: "Je le souhaite. Savez-vous seulement pour qui votre déesse a veillé, la première fois ?",
         },
-      },
-    },
-
-    archiviste: {
-      id: 'archiviste',
-      start: [
-        { if: { questStage: ['borne', 'enquete'] }, node: 'demande' },
-        { node: 'silence' },
-      ],
-      nodes: {
         silence: {
-          speaker: "L'archiviste",
-          text: "Elle lève les yeux, constate que vous ne cherchez rien de précis, et retourne à son registre.",
+          text: "Il vous regarde un moment, puis incline la tête, comme on remercie quelqu'un de ne pas avoir parlé.",
         },
-        demande: {
-          speaker: "L'archiviste",
-          text: "Le pré ? J'ai un feuillet. Mais comprenez ce que vous emportez : une carte ne dit pas où passe la limite. Elle dit qui a payé l'arpenteur.",
-          choices: [
-            { text: "Alors à quoi bon la garder ?", next: 'garder' },
-            { text: 'Je le prends.', next: 'don' },
-          ],
-        },
-        garder: {
-          speaker: "L'archiviste",
-          text: "Pour que ceux qui mentent sachent au moins qu'ils mentent.",
-          choices: [{ text: 'Je le prends.', next: 'don' }],
-        },
-        don: {
-          speaker: "L'archiviste",
-          text: "Elle détache le feuillet du registre sans un mot, et note quelque chose dans la marge, à la place qu'il occupait.",
-          effects: [{ giveItem: 'cadastre' }, { questStage: ['borne', 'decider'] }],
-        },
-      },
-    },
-
-    borne: {
-      id: 'borne',
-      start: [
-        { if: { questStage: ['borne', 'decider'] }, node: 'choix' },
-        { if: { questDone: 'borne' }, node: 'apres' },
-        { node: 'muette' },
-      ],
-      nodes: {
-        muette: {
-          text: "Une pierre grise, sans inscription. Rien ici ne permet de dire où elle devrait être.",
-        },
-        choix: {
-          text: "Le feuillet à la main, vous comptez trente pas vers l'aval. L'herbe y est plus drue, intacte depuis longtemps. Personne ne vous regarde.",
-          choices: [
-            {
-              text: 'Remettre la pierre où le cadastre la place.',
-              next: 'remise',
-              effects: [{ setFlag: 'borne_remise' }, { completeQuest: 'borne' }],
-            },
-            {
-              text: 'La laisser où elle est, et enterrer le feuillet.',
-              next: 'laissee',
-              effects: [{ setFlag: 'borne_laissee' }, { takeItem: 'cadastre' }, { completeQuest: 'borne' }],
-            },
-            { text: "Ne rien décider pour l'instant." },
-          ],
-        },
-        remise: {
-          text: "La pierre est plus légère qu'elle n'en a l'air. Demain, ceux d'amont diront qu'on la leur a volée.",
-        },
-        laissee: {
-          text: "La terre se referme sur le papier. Le pré n'a désormais plus d'autre mémoire que celle des gens qui se le disputent.",
-        },
-        apres: {
-          text: "La pierre est là où vous l'avez laissée. Pour l'instant.",
+        vide: {
+          text: "Les bancs se vident. Le représentant de Noctem est parti. La séance reprendra, et l'on y dira les mêmes phrases.",
         },
       },
     },
