@@ -16,6 +16,7 @@ const base = import.meta.env.BASE_URL;
 export const world: World = {
   character: { title: 'Inquisiteur de troisième classe', origin: 'Courveil' },
 
+  // Le savoir de départ est la version d'Huma, dite avec ses mots à elle.
   lore: [
     {
       id: 'huma',
@@ -23,7 +24,33 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Huma est la déesse des Hommes. Vous dites son nom chaque matin.",
+          text: "Huma est la déesse protectrice du genre humain. Vous dites son nom chaque matin.",
+        },
+      ],
+    },
+    {
+      // PROPOSITION — l'auteur n'a pas tranché le récit des origines.
+      id: 'hommes',
+      title: 'Les Hommes',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Nous sommes les enfants d'Huma. Elle nous a mis au monde, et quand les Elfes ont voulu notre perte, elle nous a cachés, nourris et conduits en lieu sûr.",
+        },
+      ],
+    },
+    {
+      id: 'elfes',
+      title: 'Les Elfes',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "On ne s'approche pas des Elfes. Il n'est pas de mal dont ils ne soient la cause : on vous l'a répété, comme on l'avait répété à vos parents. Ils n'ont pas les droits des Hommes, et c'est justice.",
+        },
+        {
+          if: { flags: ['puits_su'] },
+          source: 'Ce que vous avez constaté',
+          text: "Rue Basse, on a dénoncé un Elfe pour un puits gâté. Le puits l'était avant qu'il n'habite la rue. Personne, sauf vous, n'a trouvé que cela changeait quelque chose.",
         },
       ],
     },
@@ -33,7 +60,27 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Le bras de la foi d'Huma, et la garde du genre humain. Vous venez d'y entrer, au dernier rang : la troisième classe.",
+          text: "Le bras d'Huma. Un inquisiteur est un officier : il reçoit les dénonciations, conduit les arrestations et les rafles, et fait respecter la doctrine dans l'espace public. Vous venez d'y entrer, à la troisième classe, la dernière.",
+        },
+      ],
+    },
+    {
+      id: 'loi-pourpre',
+      title: 'La Loi Pourpre',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Elle est interdite à Courveil. Là où elle a cours, son application revient à des officiers d'un rang supérieur au vôtre.",
+        },
+      ],
+    },
+    {
+      id: 'lampes',
+      title: 'Les Hautes Lampes',
+      versions: [
+        {
+          source: 'Ce que chacun sait',
+          text: "Elles sont gardées par l'ordre des mages.",
         },
       ],
     },
@@ -59,7 +106,7 @@ export const world: World = {
           y: 252,
           region: 'Blanche Sévérie',
           description:
-            "Capitale de la République du Nord, sur des terres glacées. Sa puissance militaire est sans égale. Au-delà s'arrête le monde praticable.",
+            "Capitale de la République du Nord, sur des terres glacées. Sa puissance militaire est sans égale. C'est la seule ville où les Elfes se pavanent dans les rues sans être inquiétés. Au-delà s'arrête le monde praticable.",
         },
         {
           id: 'vilpiere',
@@ -96,7 +143,10 @@ export const world: World = {
           y: 546,
           region: 'Hautes Plaines',
           // d'après la carte
-          description: "Votre ville natale. Une ville de fleuve, à la lisière des Lacs et des Hautes Plaines.",
+          description:
+            "Votre ville natale, sur le fleuve, à la lisière des Lacs et des Hautes Plaines. La Loi Pourpre y est interdite ; les Elfes n'y sont pas pour autant les égaux des Hommes.",
+          dialogue: 'operation',
+          actionLabel: "Lire l'ordre de mission",
         },
         {
           id: 'terner',
@@ -122,7 +172,7 @@ export const world: World = {
           y: 645,
           region: 'Hautes Plaines',
           description:
-            "La dernière société elfique organisée, et son unique place forte. Sous ses montagnes s'étend la Mer Éternelle, grotte-cathédrale où pleut la neige fondue.",
+            "La place forte des Elfes, la dernière. Vous n'y êtes jamais allé. On dit que sous ses montagnes s'étend une mer.",
         },
 
         // ——— Sud de l'Aînée ———
@@ -252,9 +302,86 @@ export const world: World = {
     },
   },
 
-  items: {},
+  items: {
+    ordre: {
+      id: 'ordre',
+      name: 'Ordre de mission',
+      description: "Votre premier. Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits.",
+    },
+  },
 
-  quests: {},
+  quests: {
+    operation: {
+      id: 'operation',
+      title: 'Première opération',
+      stages: {
+        rue: "Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits. Vous avez quatre hommes et la journée.",
+        arrete: "Vous avez arrêté l'Elfe de la rue Basse. La rue a applaudi.",
+        classe: "Vous êtes reparti sans l'Elfe de la rue Basse. Il faudra en répondre.",
+      },
+    },
+  },
 
-  dialogues: {},
+  // ÉBAUCHE — ouverture proposée. La rue Basse, la voisine et les quatre hommes
+  // sont des inventions de travail ; seul le cadre vient de l'auteur
+  // (un officier qui reçoit des dénonciations, et « toutes les raisons sont bonnes »).
+  dialogues: {
+    operation: {
+      id: 'operation',
+      start: [
+        { if: { questNotStarted: 'operation' }, node: 'ordre' },
+        { if: { questStage: ['operation', 'rue'] }, node: 'rue' },
+      ],
+      nodes: {
+        ordre: {
+          text: "Votre premier ordre de mission vous attend, plié en quatre. Une dénonciation, rue Basse : un Elfe y aurait gâté le puits. On vous donne quatre hommes et la journée.",
+          effects: [{ giveItem: 'ordre' }, { questStage: ['operation', 'rue'] }],
+          choices: [{ text: 'Se rendre rue Basse.', next: 'rue' }, { text: 'Plus tard.' }],
+        },
+        rue: {
+          text: "La rue s'est vidée à votre approche, puis remplie de nouveau, à distance. On vous regarde faire. C'est la première fois qu'on vous regarde ainsi.",
+          choices: [
+            { text: 'Faire venir celle qui a dénoncé.', next: 'voisine' },
+            { text: "Frapper chez l'Elfe.", next: 'elfe' },
+          ],
+        },
+        voisine: {
+          speaker: 'La voisine',
+          text: "L'eau a tourné, Inquisiteur. Elle sent la vase. Et lui, il en boit sans faire la grimace. Vous trouvez ça naturel, vous ?",
+          choices: [
+            { text: "Depuis quand l'eau a-t-elle tourné ?", next: 'depuis' },
+            { text: "Cela suffit. Frapper chez l'Elfe.", next: 'elfe' },
+          ],
+        },
+        depuis: {
+          speaker: 'La voisine',
+          text: "Oh, des années. Ma mère s'en plaignait déjà. Lui ? Il est arrivé l'an passé. Elle s'arrête, compte, hausse les épaules. Et qu'est-ce que ça change ? C'en est un.",
+          effects: [{ setFlag: 'puits_su' }],
+          choices: [{ text: "Frapper chez l'Elfe.", next: 'elfe' }],
+        },
+        elfe: {
+          text: "Il ouvre avant le second coup. Il a déjà son manteau sur les épaules. « C'est pour le puits, dit-il. Je l'ai vu creuser, vous savez. Il n'a jamais été bon. »",
+          choices: [
+            {
+              text: "L'arrêter. Une dénonciation est une dénonciation.",
+              next: 'arrete',
+              effects: [{ setFlag: 'elfe_arrete' }, { questStage: ['operation', 'arrete'] }, { completeQuest: 'operation' }],
+            },
+            {
+              text: 'Repartir sans lui, et consigner que la dénonciation ne tient pas.',
+              if: { flags: ['puits_su'] },
+              next: 'classe',
+              effects: [{ setFlag: 'elfe_epargne' }, { questStage: ['operation', 'classe'] }, { completeQuest: 'operation' }],
+            },
+          ],
+        },
+        arrete: {
+          text: "Il vous suit sans que vos hommes aient à le toucher. Derrière vous, la rue applaudit. Vous êtes officier d'Huma, et la journée n'est pas finie.",
+        },
+        classe: {
+          text: "Vos hommes se regardent. La voisine vous regarde. Vous écrivez trois lignes au dos de l'ordre, et vous savez déjà qu'on vous demandera pourquoi.",
+        },
+      },
+    },
+  },
 };
