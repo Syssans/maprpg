@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { useEffect, useRef } from 'react';
+import { asset } from '../content';
 import type { MapDef } from '../engine/types';
 
 interface Props {
@@ -8,10 +9,16 @@ interface Props {
   current: string;
   reachable: string[];
   selected: string | null;
+  /** Couleur du calque actif pour chaque lieu dont la valeur est connue. */
+  tint: Record<string, string>;
+  /** Lieux portant une annotation du personnage. */
+  noted: Set<string>;
+  /** Hauteur du panneau qui recouvre le bas de la carte, tenue à jour par l'appelant. */
+  inset: { current: number };
   onSelect(placeId: string | null): void;
 }
 
-export function MapView({ map, known, current, reachable, selected, onSelect }: Props) {
+export function MapView({ map, known, current, reachable, selected, tint, noted, inset, onSelect }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const leaflet = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
@@ -28,10 +35,10 @@ export function MapView({ map, known, current, reachable, selected, onSelect }: 
     const points = map.places
       .filter((p) => p.id === current || reachable.includes(p.id))
       .map((p) => at(p.x, p.y));
-    const h = m.getSize().y;
+    if (!points.length) return;
     m.fitBounds(L.latLngBounds(points), {
-      paddingTopLeft: [50, 50],
-      paddingBottomRight: [50, Math.round(h * 0.4)],
+      paddingTopLeft: [50, 60],
+      paddingBottomRight: [50, Math.max(inset.current, Math.round(m.getSize().y * 0.3)) + 40],
       maxZoom: m.getBoundsZoom([[0, 0], [map.height, map.width]], true) + 0.5,
       animate,
     });
@@ -49,7 +56,7 @@ export function MapView({ map, known, current, reachable, selected, onSelect }: 
       maxBounds: bounds.pad(0.4),
       maxBoundsViscosity: 0.8,
     });
-    L.imageOverlay(map.image, bounds).addTo(m);
+    L.imageOverlay(asset(map.image), bounds).addTo(m);
     m.setMinZoom(m.getBoundsZoom(bounds, false));
     leaflet.current = m;
     focus(false);
@@ -68,9 +75,9 @@ export function MapView({ map, known, current, reachable, selected, onSelect }: 
     group.clearLayers();
     const byId = Object.fromEntries(map.places.map((p) => [p.id, p]));
 
-    for (const [a, b] of map.routes) {
-      if (!known.has(a) || !known.has(b)) continue;
-      L.polyline([at(byId[a].x, byId[a].y), at(byId[b].x, byId[b].y)], {
+    for (const r of map.routes) {
+      if (!known.has(r.a) || !known.has(r.b) || !byId[r.a] || !byId[r.b]) continue;
+      L.polyline([at(byId[r.a].x, byId[r.a].y), at(byId[r.b].x, byId[r.b].y)], {
         className: 'route',
         interactive: false,
       }).addTo(group);
@@ -84,26 +91,27 @@ export function MapView({ map, known, current, reachable, selected, onSelect }: 
         p.id === selected && 'is-selected',
         reachable.includes(p.id) && 'is-reachable',
         p.enters && 'is-gate',
+        tint[p.id] && 'is-tinted',
+        noted.has(p.id) && 'is-noted',
       ]
         .filter(Boolean)
         .join(' ');
+      const root = document.createElement('div');
+      root.className = classes;
+      const dot = document.createElement('i');
+      if (tint[p.id]) dot.style.setProperty('--tint', tint[p.id]);
       const label = document.createElement('span');
-      const labelled =
-        !map.printedLabels || p.id === current || p.id === selected || reachable.includes(p.id);
+      const labelled = !map.printedLabels || p.id === current || p.id === selected || reachable.includes(p.id);
       if (labelled) label.textContent = p.name;
-      const icon = L.divIcon({
-        className: '',
-        iconSize: [0, 0],
-        html: `<div class="${classes}"><i></i>${label.outerHTML}</div>`,
-      });
-      L.marker(at(p.x, p.y), { icon })
+      root.append(dot, label);
+      L.marker(at(p.x, p.y), { icon: L.divIcon({ className: '', iconSize: [0, 0], html: root.outerHTML }) })
         .on('click', (e) => {
           L.DomEvent.stopPropagation(e);
           select.current(p.id);
         })
         .addTo(group);
     }
-  }, [map, known, current, reachable, selected]);
+  }, [map, known, current, reachable, selected, tint, noted]);
 
   useEffect(() => {
     focus(true);

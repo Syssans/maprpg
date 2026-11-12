@@ -1,0 +1,59 @@
+// Les lieux au nord de l'Aînée.
+// Les durées des chemins (entre parenthèses, en jours) sont une hypothèse de travail,
+// proportionnelle aux distances sur la carte. Un chemin ne s'écrit qu'une fois, d'un seul côté.
+// Les descriptions marquées « d'après la carte » ne s'appuient que sur le dessin.
+
+== LIEU monde/col-carnem : Col Carnem
+position : 245, 252
+région : Blanche Sévérie
+chemins : vilpiere (3)
+calque chatiments = interdit
+Siège de la République du Nord, accrochée au flanc d'une chaîne toujours blanche. Nulle armée ne vaut la sienne. Les Elfes s'y pavanent dans les rues sans être inquiétés, et il est formellement interdit de les y châtier en public. Au-delà s'arrête le monde praticable.
+
+== LIEU monde/vilpiere : Vilpière
+position : 433, 355
+région : Blanche Sévérie
+chemins : rive-claire (5)
+calque chatiments = impossible
+// d'après la carte
+Une ville de Sévérie, là où la neige cède aux forêts. L'Inquisition n'y a pas les moyens de châtier un Elfe en place publique.
+
+== LIEU monde/bordemer : Bordemer
+position : 314, 685
+région : Les Lacs
+chemins : rive-claire (2)
+Des ruines, là où l'Aînée rejoint la mer. C'est ici, vous a-t-on appris, que l'on ouvrit jadis un pont aux Elfes.
+
+== LIEU monde/rive-claire : Rive Claire
+position : 488, 680
+région : Les Lacs
+chemins : courveil (4), lastille (1)
+calque chatiments = mal-vu
+Le chef-lieu des Lacs, au bord de la falaise : une ville de marchands qui ne dort jamais. On dit que toute pièce d'or en circulation y est passée un jour. Ses dizaines de ponts de pierre sont le seul passage entre le Nord et le Sud. Châtier un Elfe en public y est très mal vu : c'est mauvais pour les affaires.
+
+== LIEU monde/courveil : Courveil
+position : 718, 546
+région : Hautes Plaines
+chemins : terner (3), noctem (3)
+calque chatiments = impossible
+// d'après la carte
+Votre ville natale, sur le fleuve, à la lisière des Lacs et des Hautes Plaines. Vous y servez au bureau de l'Inquisition. La Loi Pourpre y est interdite ; les Elfes n'y sont pas pour autant les égaux des Hommes.
+note [si fait puits_su] : Rue Basse : le puits était gâté avant que l'Elfe n'y habite.
+
+== LIEU monde/terner : Terner
+position : 906, 415
+région : Hautes Plaines
+chemins : mortneuve (2), noctem (3)
+calque chatiments = possible
+Le siège d'un roi, dans un royaume lointain et sans histoire. On y vit d'élevage et de pêche en eaux froides. Le bureau de l'Inquisition y est assez fort pour châtier en place publique.
+
+== LIEU monde/mortneuve : Mortneuve
+position : 988, 329
+région : Hautes Plaines
+// d'après la carte
+Un port du nord-est, à l'embouchure d'un fleuve, face à la mer froide.
+
+== LIEU monde/noctem : Noctem
+position : 915, 645
+région : Hautes Plaines
+L'imposant château des Elfes, leur dernière place forte, au pied des montagnes. Vous n'y êtes jamais allé. On dit que sous la roche s'étend une mer.

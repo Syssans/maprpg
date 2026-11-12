@@ -1,0 +1,32 @@
+// « Le Sanctuaire et la Tempête ». Le jeu commence en l'An 538 :
+// la Grande Exode n'en est qu'à ses débuts et Arsenault répond toujours.
+//
+// RÈGLE D'ÉCRITURE : le joueur ne sait que ce que le personnage sait.
+// Rien de ce que la bible de l'univers révèle au lecteur ne doit apparaître
+// avant que l'inquisiteur ne l'ait appris en jeu.
+
+== JEU
+personnage : Inquisiteur de troisième classe
+origine : Courveil
+départ : monde
+an : 538
+jour : 1
+jours par an : 225
+// Nombre de lunes l'année du départ ; il alterne ensuite d'une année sur l'autre.
+lunes : 2
+
+// La carte est dessinée en 3072 px mais repérée sur une grille de 2000 x 1564 :
+// les positions des lieux se lisent sur cette grille.
+== CARTE monde : Le continent
+image : maps/monde.jpg
+taille : 2000 x 1564
+entrée : courveil
+noms imprimés : oui
+
+// Ce que l'inquisiteur sait de la façon dont on châtie les Elfes, ville par ville.
+== CALQUE chatiments : Châtiment des Elfes
+valeur public : En place publique #7a2e22
+valeur possible : Possible #b5651d
+valeur mal-vu : Très mal vu #6d7f4f
+valeur impossible : Hors de portée #5d6d7e
+valeur interdit : Formellement interdit #2f4f6f

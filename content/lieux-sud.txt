@@ -1,0 +1,83 @@
+// Les lieux au sud de l'Aînée. Mêmes conventions que pour le Nord.
+
+== LIEU monde/lastille : Lastille
+position : 500, 718
+région : Valore
+chemins : assise (5), rosebourg (6)
+calque chatiments = public
+La sœur jumelle de Rive Claire, sur la rive sud de l'Aînée. Ici commence le plateau de Valore, et avec lui le Sud, où l'on châtie les Elfes sur les places.
+
+== LIEU monde/assise : Assise
+position : 155, 768
+région : Valore
+chemins : freteaux (3)
+calque chatiments = public
+Capitale du Valore, la contrée la plus riche du monde. Le Conseil Continental y siège, et l'Inquisition aussi. Le Nord et le Sud s'y parlent ; on y débat de tout, et d'abord de la question elfique.
+
+== LIEU monde/freteaux : Fréteaux
+position : 186, 955
+région : Valore
+chemins : dirgue (3)
+calque chatiments = public
+// d'après la carte
+Un port de la côte ouest, à l'embouchure d'un fleuve descendu des montagnes.
+
+== LIEU monde/dirgue : Dirgue
+position : 331, 1066
+région : Valore
+chemins : tissin (1), rosebourg (5)
+calque chatiments = public
+// d'après la carte
+La dernière ville de Valore avant l'Alyr.
+
+== LIEU monde/tissin : Tissin
+position : 312, 1148
+région : Alyr occidental
+chemins : portvilla (4)
+calque chatiments = public
+L'entrée du tunnel qui mène à Portvilla sous la montagne : douze kilomètres de long, et toute une ville creusée dans la roche.
+
+== LIEU monde/rosebourg : Rosebourg
+position : 708, 1075
+région : Alyr septentrional
+chemins : calnire (3)
+calque chatiments = public
+// d'après la carte
+Une ville au confluent des fleuves de l'Alyr, sur la route de Calnire.
+
+== LIEU monde/allen : Allen
+position : 1000, 875
+région : Alyr oriental
+calque chatiments = public
+// d'après la carte
+Un port de la côte est, tourné vers Estarec.
+note [si fait barques_allen] : Des barques venues d'Estarec y ont touché terre.
+
+== LIEU monde/calnire : Calnire
+position : 886, 1127
+région : Alyr
+chemins : allen (4), selene (3)
+calque chatiments = public
+La cité blanche des rois du Sud, loin de toutes les autres, et méfiante envers le Nord. C'est là que bat le cœur de l'Inquisition. De ses murailles, dit-on, on aperçoit Estarec.
+
+== LIEU monde/selene : Sélène
+position : 830, 1322
+région : Alyr
+chemins : sevirin (2)
+calque chatiments = public
+// d'après la carte
+Une ville entre le lac et la forêt, au sud de Calnire.
+
+== LIEU monde/sevirin : Sévirin
+position : 670, 1370
+région : Alyr central
+chemins : portvilla (3)
+calque chatiments = public
+// d'après la carte
+Un port de la côte sud, au débouché du désert.
+
+== LIEU monde/portvilla : Portvilla
+position : 460, 1375
+région : Alyr méridional
+calque chatiments = public
+Un port à l'extrémité sud du continent, au débouché du tunnel de Tissin.

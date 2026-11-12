@@ -1,23 +1,55 @@
-import { useEffect, useMemo, useState } from 'react';
-import { world } from '../content';
-import { canLeave, check, describe, knownLore, knownPlaces, neighbours, visibleChoices } from '../engine/rules';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { authorMode, world } from '../content';
+import * as rules from '../engine/rules';
 import { useGame } from '../engine/store';
 import { MapView } from './MapView';
+import { Bag, DialogueView, Journal, Knowledge, NewsView, ReportView, TalkView } from './pages';
+import { You } from './You';
 
-type Tab = 'carte' | 'journal' | 'savoir' | 'sac';
+type Tab = 'carte' | 'journal' | 'savoir' | 'sac' | 'vous';
+const TABS: [Tab, string][] = [
+  ['carte', 'Carte'],
+  ['journal', 'Journal'],
+  ['savoir', 'Savoir'],
+  ['sac', 'Sac'],
+  ['vous', 'Vous'],
+];
 
 export function App() {
   const game = useGame();
   const { player } = game;
   const [tab, setTab] = useState<Tab>('carte');
   const [selected, setSelected] = useState<string | null>(null);
+  const [layerId, setLayerId] = useState<string | null>(null);
 
   const map = world.maps[player.mapId];
   const current = player.positions[map.id];
-  const known = useMemo(() => knownPlaces(map, player), [map, player]);
-  const reachable = useMemo(() => neighbours(map, current), [map, current]);
+  const known = useMemo(() => rules.knownPlaces(map, player), [map, player]);
+  const routes = useMemo(() => rules.neighbours(map, current), [map, current]);
+  const reachable = useMemo(() => routes.map((r) => r.id), [routes]);
+  const noted = useMemo(
+    () => new Set(map.places.filter((p) => rules.describe(world, player, p).notes.length).map((p) => p.id)),
+    [map, player],
+  );
+  const layer = layerId ? world.layers[layerId] : null;
+  const tint = useMemo(() => {
+    const out: Record<string, string> = {};
+    if (layer)
+      for (const p of map.places) {
+        const v = rules.layerValue(world, player, p, layer.id);
+        if (v) out[p.id] = v.color;
+      }
+    return out;
+  }, [map, player, layer]);
 
   useEffect(() => setSelected(null), [map.id]);
+
+  // La carte se cadre au-dessus du panneau : elle doit en connaître la hauteur avant de bouger.
+  const sheet = useRef<HTMLElement>(null);
+  const inset = useRef(0);
+  useLayoutEffect(() => {
+    inset.current = sheet.current?.offsetHeight ?? 0;
+  });
 
   useEffect(() => {
     if (!game.notices.length) return;
@@ -25,19 +57,32 @@ export function App() {
     return () => clearTimeout(t);
   }, [game.notices, game.clearNotices]);
 
-  const place = map.places.find((p) => p.id === (selected ?? current))!;
+  const place = map.places.find((p) => p.id === (selected ?? current)) ?? map.places[0];
   const isHere = place.id === current;
-  const hasTalk =
-    isHere && place.dialogue && world.dialogues[place.dialogue].start.some((s) => check(player, s.if));
+  const route = routes.find((r) => r.id === place.id);
+  const { text, notes } = rules.describe(world, player, place);
+  const layerHere = layer && rules.layerValue(world, player, place, layer.id);
+  const layerIds = Object.keys(world.layers);
+
+  // Ce qui doit être lu ou réglé avant de reprendre la main, par ordre de priorité.
+  const overlay = player.news.length ? (
+    <NewsView />
+  ) : player.dialogue ? (
+    <DialogueView />
+  ) : player.pendingReports.length ? (
+    <ReportView key={player.pendingReports[0]} />
+  ) : player.talk ? (
+    <TalkView />
+  ) : null;
 
   return (
     <div className="app">
       <header className="bar">
         <div>
-          <small>{map.parent ? world.maps[map.parent].name : 'Monde'}</small>
+          <small>{rules.dateLabel(world, player.day)}</small>
           <strong>{map.name}</strong>
         </div>
-        {canLeave(world, player) && tab === 'carte' && (
+        {rules.canLeave(world, player) && tab === 'carte' && !overlay && (
           <button onClick={game.leave}>Quitter les lieux</button>
         )}
       </header>
@@ -50,16 +95,48 @@ export function App() {
           current={current}
           reachable={reachable}
           selected={selected}
+          tint={tint}
+          noted={noted}
+          inset={inset}
           onSelect={setSelected}
         />
 
-        {tab === 'carte' && !player.dialogue && (
-          <section className="sheet">
+        {tab === 'carte' && !overlay && layerIds.length > 0 && (
+          <div className="layers">
+            <button onClick={() => setLayerId(layerIds[layerIds.indexOf(layerId ?? '') + 1] ?? null)}>
+              {layer ? layer.name : 'Calques'}
+            </button>
+            {layer && (
+              <ul>
+                {Object.values(layer.values).map((v) => (
+                  <li key={v.label}>
+                    <i style={{ background: v.color }} />
+                    {v.label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {tab === 'carte' && !overlay && (
+          <section className="sheet" ref={sheet}>
             {place.region && <small className="region">{place.region}</small>}
             <h2>{place.name}</h2>
-            <p>{describe(player, place)}</p>
+            <p>{text}</p>
+            {layerHere && (
+              <p className="layer-value">
+                <i style={{ background: layerHere.color }} />
+                {layer!.name} : {layerHere.label.toLowerCase()}
+              </p>
+            )}
+            {notes.map((n, i) => (
+              <p key={i} className="note">
+                {n}
+              </p>
+            ))}
             <div className="actions">
-              {!isHere && reachable.includes(place.id) && (
+              {!isHere && route && (
                 <button
                   className="primary"
                   onClick={() => {
@@ -67,28 +144,36 @@ export function App() {
                     setSelected(null);
                   }}
                 >
-                  S'y rendre
+                  S'y rendre · {route.days} {route.days > 1 ? 'jours' : 'jour'}
                 </button>
               )}
-              {!isHere && !reachable.includes(place.id) && <em>Aucun chemin direct depuis votre position.</em>}
+              {!isHere && !route && <em>Aucun chemin direct depuis votre position.</em>}
               {isHere && place.enters && (
                 <button className="primary" onClick={game.enter}>
                   Entrer
                 </button>
               )}
-              {hasTalk && (
-                <button className="primary" onClick={game.talk}>
-                  {place.actionLabel ?? 'Parler'}
-                </button>
-              )}
+              {isHere &&
+                rules.scenesHere(world, player).map((s) => (
+                  <button key={s.id} className="primary" onClick={() => game.startScene(s.id)}>
+                    {s.label}
+                  </button>
+                ))}
+              {isHere &&
+                rules.peopleHere(world, player).map((p) => (
+                  <button key={p.id} onClick={() => game.openTalk(p.id)}>
+                    Parler à : {p.name}
+                  </button>
+                ))}
             </div>
           </section>
         )}
 
-        {player.dialogue && <DialogueView />}
-        {tab === 'journal' && !player.dialogue && <Journal />}
-        {tab === 'savoir' && !player.dialogue && <Knowledge />}
-        {tab === 'sac' && !player.dialogue && <Bag />}
+        {overlay}
+        {!overlay && tab === 'journal' && <Journal />}
+        {!overlay && tab === 'savoir' && <Knowledge />}
+        {!overlay && tab === 'sac' && <Bag />}
+        {!overlay && tab === 'vous' && <You author={authorMode} />}
 
         {game.notices.length > 0 && (
           <div className="toast" onClick={game.clearNotices}>
@@ -100,119 +185,12 @@ export function App() {
       </main>
 
       <nav className="tabs">
-        {(
-          [
-            ['carte', 'Carte'],
-            ['journal', 'Journal'],
-            ['savoir', 'Savoir'],
-            ['sac', 'Sac'],
-          ] as const
-        ).map(([id, label]) => (
+        {TABS.map(([id, label]) => (
           <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>
             {label}
           </button>
         ))}
       </nav>
     </div>
-  );
-}
-
-function DialogueView() {
-  const { player, choose } = useGame();
-  const d = player.dialogue!;
-  const node = world.dialogues[d.id].nodes[d.node];
-  const choices = visibleChoices(world, player);
-  return (
-    <section className="page dialogue">
-      <div className="scroll" key={d.node}>
-        {node.speaker && <h3>{node.speaker}</h3>}
-        <p className="said">{node.text}</p>
-      </div>
-      <div className="choices">
-        {choices.map((c) => (
-          <button key={c.index} onClick={() => choose(c.index)}>
-            {c.text}
-          </button>
-        ))}
-        {choices.length === 0 && (
-          <button className="primary" onClick={() => choose(-1)}>
-            Poursuivre
-          </button>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function Journal() {
-  const { player, reset } = useGame();
-  const entries = Object.entries(player.quests);
-  return (
-    <section className="page">
-      <div className="scroll">
-        <h2>Journal</h2>
-        {entries.length === 0 && <p className="muted">Rien encore qui mérite d'être écrit.</p>}
-        {entries.map(([id, q]) => {
-          const quest = world.quests[id];
-          return (
-            <article key={id} className={q.done ? 'done' : ''}>
-              <h3>{quest.title}</h3>
-              <p>{q.done ? (quest.epilogue ?? quest.stages[q.stage]) : quest.stages[q.stage]}</p>
-            </article>
-          );
-        })}
-        <button
-          className="quiet"
-          onClick={() => confirm('Effacer la sauvegarde et tout recommencer ?') && reset()}
-        >
-          Recommencer depuis le début
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function Bag() {
-  const { player } = useGame();
-  const entries = Object.entries(player.inventory);
-  return (
-    <section className="page">
-      <div className="scroll">
-        <h2>Sac</h2>
-        {entries.length === 0 && <p className="muted">Vous voyagez les mains vides.</p>}
-        {entries.map(([id, n]) => (
-          <article key={id}>
-            <h3>
-              {world.items[id].name}
-              {n > 1 && ` ×${n}`}
-            </h3>
-            <p>{world.items[id].description}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Knowledge() {
-  const { player } = useGame();
-  return (
-    <section className="page">
-      <div className="scroll">
-        <small className="region">Originaire de {world.character.origin}</small>
-        <h2>{world.character.title}</h2>
-        {knownLore(world, player).map((l) => (
-          <article key={l.id}>
-            <h3>{l.title}</h3>
-            {l.versions.map((v, i) => (
-              <div key={i} className="version">
-                <small className="region">{v.source}</small>
-                <p>{v.text}</p>
-              </div>
-            ))}
-          </article>
-        ))}
-      </div>
-    </section>
   );
 }

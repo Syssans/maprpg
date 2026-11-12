@@ -1,0 +1,23 @@
+// EXEMPLES — ce fichier ne sert qu'à montrer les personnes, les sujets et les événements.
+// Rien ici ne vient de l'auteur : à supprimer ou à réécrire.
+
+// Une personne se tient dans un lieu. On peut aborder avec elle tout sujet du Savoir.
+//   ? sujet : ce qu'elle répond
+//   ! sujet : ce qu'elle répond si le joueur tient une contradiction sur ce sujet
+//   ? *     : ce qu'elle répond à tout le reste
+== PERSONNE collegue @ monde/courveil : Un collègue du bureau
+Un inquisiteur de deuxième classe, entré dans les ordres trois ans avant vous. Il classe des feuilles sans lever les yeux.
+
+? elfes : On ne t'a pas fait entrer ici pour te poser la question. On t'a fait entrer pour y répondre.
+! elfes : Le puits ? Il pose sa plume. Écoute. Le puits, on s'en moque. Ce qui compte, c'est que la rue ait vu quelqu'un venir. Garde ça pour toi.
+  + dossier bavard : A parlé de l'affaire de la rue Basse à un collègue.
+? inquisition : Troisième classe, tu portes les ordres. Deuxième, tu les lis avant. Première, tu les écris. C'est tout le secret de la maison.
+? loi-pourpre [si en uniforme] : Pas ici. Et pas à voix haute, même pour dire qu'elle est interdite.
+? estarec : Des histoires de marins. Il en arrive une nouvelle chaque semaine.
+? * : Il hausse les épaules et retourne à ses feuilles.
+
+// Un événement survient une seule fois, dès que sa condition est remplie,
+// que le joueur soit là ou non. Ici : au sixième jour de la partie.
+== ÉVÉNEMENT barques-allen : Des nouvelles de la côte [si jour >= 6]
+On le répète à l'étape et sur les marchés : des barques ont touché la côte d'Allen, pleines de gens qui ne savent pas dire ce qu'ils ont fui.
++ fait barques_allen

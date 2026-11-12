@@ -40,7 +40,7 @@ main { position: relative; flex: 1; min-height: 0; }
 
 .sheet {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 500;
-  padding: 14px 18px 16px; max-height: 55%; overflow-y: auto;
+  padding: 14px 18px 16px; max-height: 50%; overflow-y: auto;
   background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px #0003;
 }
 h2 { margin: 0 0 6px; font-size: 21px; font-weight: 600; }
@@ -81,3 +81,42 @@ button.primary { background: var(--ink); color: var(--paper); border-color: var(
 .version { margin-top: 8px; }
 .version + .version { padding-top: 8px; border-top: 1px dashed var(--line); }
 .tabs button { letter-spacing: .03em; }
+
+/* ——— Calques, annotations ——— */
+.layers { position: absolute; top: 10px; right: 10px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.layers button { background: var(--paper); border: 1px solid var(--ink-soft); border-radius: 4px; padding: 7px 12px; font-size: 14px; box-shadow: 0 2px 8px #0003; }
+.layers ul { list-style: none; margin: 0; padding: 8px 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; font-size: 13px; box-shadow: 0 2px 8px #0003; }
+.layers li { display: flex; align-items: center; gap: 7px; padding: 2px 0; }
+.layers li i, .layer-value i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.layer-value { display: flex; align-items: center; gap: 8px; font-size: 14.5px; color: var(--ink-soft); }
+.place.is-tinted i { background: var(--tint); border-color: var(--ink); box-shadow: 0 0 0 3px var(--paper); }
+.place.is-tinted.is-current i { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--accent); }
+.place.is-noted i::after { content: ''; position: absolute; top: 0; left: 50%; margin-left: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); border: 1.5px solid var(--paper); }
+.note { font-style: italic; color: var(--ink-soft); border-left: 2px solid var(--accent); padding-left: 10px; font-size: 15.5px; }
+
+/* ——— Pages ——— */
+h2.section { margin-top: 30px; }
+.clash { color: var(--accent); font-style: italic; font-size: 14.5px; margin-bottom: 4px; }
+.topics { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.topics button, .report fieldset button, button.plain { min-height: 44px; padding: 10px 14px; border-radius: 4px; background: transparent; border: 1px solid var(--ink-soft); text-align: left; }
+.topics button.asked { opacity: .5; }
+.topics em { font-size: 13.5px; color: var(--accent); }
+.report fieldset { border: none; border-top: 1px solid var(--line); margin: 14px 0 0; padding: 12px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.report legend { padding: 0 8px 0 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.report fieldset button.picked { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:disabled { opacity: .4; cursor: default; }
+.written { font-size: 15.5px; }
+.tag { display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 1px 6px; border: 1px solid currentColor; border-radius: 3px; white-space: nowrap; color: var(--ink-soft); }
+.tag.faux { color: var(--accent); }
+.page .actions { margin-bottom: 8px; }
+
+/* ——— Mode auteur ——— */
+.author label { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; font-size: 13px; color: var(--ink-soft); }
+.author select, .author input[type='number'] { font: inherit; font-size: 15px; padding: 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff8; color: var(--ink); max-width: 100%; }
+.author .flags { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-bottom: 12px; }
+.author .flags label { flex-direction: row; align-items: center; gap: 6px; margin: 2px 0; font-size: 14px; color: var(--ink); }
+.problem { font-size: 13.5px; line-height: 1.4; margin-bottom: 8px; font-family: ui-monospace, Menlo, monospace; }
+.broken { padding: 24px; background: var(--paper); min-height: 100%; overflow: auto; height: 100%; }
+.broken p { font-size: 14px; }
+.tabs button { letter-spacing: 0; font-size: 14.5px; }
+.place i { position: relative; }

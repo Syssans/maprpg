@@ -1,0 +1,77 @@
+// ÉBAUCHE — ouverture proposée, à réécrire.
+// La rue Basse, la voisine et les quatre hommes sont des inventions de travail ;
+// seul le cadre vient de l'auteur (un officier qui reçoit des dénonciations,
+// et « toutes les raisons sont bonnes »).
+
+== QUÊTE operation : Première opération
+étape rue : Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits. Vous avez quatre hommes et la journée.
+étape arrete : Vous avez arrêté l'Elfe de la rue Basse. La rue a applaudi.
+étape classe : Vous êtes reparti sans l'Elfe de la rue Basse. Il faudra en répondre.
+
+== OBJET ordre : Ordre de mission
+Votre premier. Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits.
+
+== SCÈNE operation @ monde/courveil : Passer au bureau de l'Inquisition
+début ordre [si quête operation non commencée]
+début rue [si quête operation = rue]
+
+--- ordre
+Au bureau, votre premier ordre de mission vous attend, plié en quatre. Une dénonciation, rue Basse : un Elfe y aurait gâté le puits. On vous donne quatre hommes et la journée.
++ objet ordre
++ quête operation = rue
+> Se rendre rue Basse. -> rue
+> Plus tard.
+
+--- rue
+La rue s'est vidée à votre approche, puis remplie de nouveau, à distance. On vous regarde faire. C'est la première fois qu'on vous regarde ainsi.
+> Faire venir celle qui a dénoncé. -> voisine
+> Frapper chez l'Elfe. -> elfe
+
+--- voisine
+@ La voisine
+L'eau a tourné, Inquisiteur. Elle sent la vase. Et lui, il en boit sans faire la grimace. Vous trouvez ça naturel, vous ?
+> Depuis quand l'eau a-t-elle tourné ? -> depuis
+> Cela suffit. Frapper chez l'Elfe. -> elfe
+
+--- depuis
+@ La voisine
+Oh, des années. Ma mère s'en plaignait déjà. Lui ? Il est arrivé l'an passé. Elle s'arrête, compte, hausse les épaules. Et qu'est-ce que ça change ? C'en est un.
++ fait puits_su
+> Frapper chez l'Elfe. -> elfe
+
+--- elfe
+Il ouvre avant le second coup. Il a déjà son manteau sur les épaules. « C'est pour le puits, dit-il. Je l'ai vu creuser, vous savez. Il n'a jamais été bon. »
+> L'arrêter. Une dénonciation est une dénonciation. -> arrete
+  + fait elfe_arrete
+  + quête operation = arrete
+  + quête operation close
+  + rapport rue-basse
+> Repartir sans lui, et consigner que la dénonciation ne tient pas. -> classe [si fait puits_su]
+  + fait elfe_epargne
+  + quête operation = classe
+  + quête operation close
+  + rapport rue-basse
+
+--- arrete
+Il vous suit sans que vos hommes aient à le toucher. Derrière vous, la rue applaudit. Il répondra du puits comme un Homme en répondrait, et il paiera trois fois. Vous êtes officier d'Huma, et la journée n'est pas finie.
+
+--- classe
+Vos hommes se regardent. La voisine vous regarde. Il vous reste à l'écrire, et vous savez déjà qu'on vous demandera pourquoi.
+
+// EXEMPLE de rapport. Chaque point propose ce que l'on peut déclarer :
+// « vrai », « faux » ou « omis ». Le jeu garde ce que le joueur a écrit.
+== RAPPORT rue-basse : Rapport — affaire de la rue Basse
+De retour au bureau, on vous tend une feuille. Un rapport d'opération se relit à Assise ; on vous l'a dit le premier jour.
+
+* Le puits
+= vrai : « Le puits était gâté avant l'arrivée de l'Elfe dans la rue. » [si fait puits_su]
+  + dossier fougueux : A contredit une dénonciation dans son premier rapport.
+= faux : « L'Elfe a gâté le puits de la rue Basse. »
+  + fait rapport_menteur
+= omis : Ne rien écrire sur le puits.
+
+* La population
+= vrai : « La rue a approuvé l'opération. » [si fait elfe_arrete]
+= vrai : « La rue a mal reçu ma décision. » [si fait elfe_epargne]
+  + dossier nordique : Se plaint de la population dans un rapport.
+= omis : Ne rien écrire sur la rue.

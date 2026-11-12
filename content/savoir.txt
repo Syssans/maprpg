@@ -1,0 +1,38 @@
+// Ce que le personnage sait. Le savoir de départ est la version d'Huma, dite avec ses mots à elle.
+// Chaque sujet connu peut être abordé avec les personnes rencontrées.
+
+== SAVOIR huma : Huma
+[Ce qu'on vous a enseigné] Fille d'Olre, qui est le soleil. Mère des Hommes, protectrice de l'Humanité. Vous dites son nom chaque matin.
+
+== SAVOIR hommes : Les Hommes
+// La seconde phrase est une proposition : la bible dit seulement « enfants d'Huma ».
+[Ce qu'on vous a enseigné] Nous sommes les enfants d'Huma. Quand les Elfes ont voulu notre perte, elle nous a cachés, nourris et conduits en lieu sûr.
+
+== SAVOIR elfes : Les Elfes
+[Ce qu'on vous a enseigné] On ne s'approche pas des Elfes. Il n'est pas de mal dont ils ne soient la cause : on vous l'a répété, comme on l'avait répété à vos parents. Ils n'ont pas les droits des Hommes, et c'est justice.
+[Ce que vous avez constaté | si fait puits_su | contredit] Rue Basse, on a dénoncé un Elfe pour un puits gâté. Le puits l'était avant qu'il n'habite la rue. Personne, sauf vous, n'a trouvé que cela changeait quelque chose.
+
+== SAVOIR folie : La Folie Elfique
+[Ce que chacun sait] Un mal de l'esprit, propre aux Elfes : la colère d'abord, puis la violence, puis plus rien d'eux-mêmes. Il se prend au contact. Il a dévasté des régions entières, et un Elfe vit des siècles : celui que vous croisez a pu le porter.
+
+== SAVOIR bordemer : Bordemer
+[Ce qu'on vous a enseigné] Bordemer ouvrit jadis son pont aux Elfes. Le prophète d'Huma nomma cela une hérésie. Il ne reste de la ville que des ruines.
+
+== SAVOIR inquisition : L'Inquisition
+[Ce qu'on vous a enseigné] Le bras d'Huma. Un inquisiteur est un officier : il reçoit les dénonciations, conduit les arrestations et les rafles, et fait respecter la doctrine dans l'espace public. L'Inquisition tient un bureau dans chaque grande ville des Hommes. Elle siège à Assise ; son cœur est à Calnire. Vous venez d'y entrer, au bureau de Courveil, à la troisième classe, la dernière.
+
+== SAVOIR chatiments : Les châtiments
+[Ce qu'on vous a enseigné] Un Elfe arrêté à Courveil répond de ses actes comme un Homme, et il est châtié trois fois plus. Dans le Sud, on châtie les Elfes en place publique. Au Nord, seuls les bureaux assez forts se le permettent : c'est possible à Terner, mal vu à Rive Claire, impossible à Vilpière, formellement interdit à Col Carnem. Le vôtre n'en a pas le poids.
+
+== SAVOIR an-un : L'An 1
+[Ce que chacun sait] La fin de l'Âge Sombre : l'empereur disparut, Assise renaquit, et le Conseil Continental avec elle. On compte les années depuis. Nous sommes en l'An 538.
+
+== SAVOIR loi-pourpre : La Loi Pourpre
+[Ce qu'on vous a enseigné] Elle est interdite à Courveil. Là où elle a cours, son application revient à des officiers d'un rang supérieur au vôtre.
+
+== SAVOIR lampes : Les Hautes Lampes
+[Ce que chacun sait] Elles sont gardées par l'ordre des mages.
+
+== SAVOIR estarec : Estarec
+[Ce qu'on raconte] Les terres du sud-est, de l'autre côté de la mer. Des gens en arrivent par bateaux depuis peu. On dit qu'ils ont tout laissé, et qu'ils ne savent pas nommer ce qu'ils fuient. La citadelle d'Arsenault, elle, tient toujours et envoie des nouvelles.
+[Ce qu'on dit sur la route | si fait barques_allen] Des barques ont touché la côte d'Allen. Ceux qui en descendent ne demandent ni pain ni toit : ils demandent seulement à aller plus loin.

@@ -1,0 +1,37 @@
+// ÉBAUCHE — la convocation et l'arrivée à Assise. Les réunions elles-mêmes restent à écrire.
+
+== QUÊTE convocation : La convocation
+étape route : Assise vous convoque : vous y assisterez à des réunions, en observateur. On ne vous dit pas lesquelles. La route passe par Rive Claire et ses ponts.
+étape observateur : Vous êtes à Assise. On vous a désigné un banc, au fond. Écouter. Ne pas parler.
+
+== OBJET convocation : Convocation
+Scellée d'Assise. Elle dit où et quand. Elle ne dit pas pourquoi.
+
+== SCÈNE lettre @ monde/courveil : Passer au bureau de l'Inquisition
+début lettre-puits [si quête operation close, quête convocation non commencée, fait elfe_epargne]
+début lettre [si quête operation close, quête convocation non commencée]
+
+--- lettre-puits
+Une lettre vous attend au bureau, scellée d'Assise. Vous pensez aussitôt au puits de la rue Basse, et à ce que vous en avez écrit.
+> Ouvrir la lettre. -> lettre
+
+--- lettre
+Assise vous convoque. Vous y assisterez, en observateur, à des réunions dont on ne vous dit pas l'objet. Aucun motif. Au bureau, on vous regarde comme on regarde un homme qui monte, ou un homme qui tombe : personne ne sait encore lequel.
++ objet convocation
++ quête convocation = route
+// Un repère retient le jour où il est posé : « depuis convocation > 14 » compte les jours écoulés.
++ repère convocation
+
+== SCÈNE siege @ monde/assise : Se présenter au siège de l'Inquisition
+// EXEMPLE d'échéance : la route directe prend dix jours. Qui flâne arrive en retard.
+début retard [si quête convocation = route, depuis convocation > 14]
+début arrivee [si quête convocation = route]
+
+--- arrivee
+Le siège de l'Inquisition vous reçoit sans chaleur et sans surprise. On vérifie le sceau, on écorche le nom de Courveil, puis on vous désigne un banc, au fond. « Observateur. Vous écoutez. Vous ne parlez pas. »
++ quête convocation = observateur
+
+--- retard
+Le siège de l'Inquisition vous reçoit sans chaleur. On vérifie le sceau, puis la date, deux fois. « Courveil n'est pas si loin. » On vous désigne un banc, au fond. « Observateur. Vous écoutez. Vous ne parlez pas. »
++ quête convocation = observateur
++ dossier fougueux : S'est présenté en retard à sa convocation.
