@@ -1,7 +1,9 @@
-// « Le Sanctuaire et la Tempête », An 666.
+// « Le Sanctuaire et la Tempête ». Le jeu commence en l'An 538 :
+// la Grande Exode n'en est qu'à ses débuts et Arsenault répond toujours.
 //
 // RÈGLE D'ÉCRITURE : le joueur ne sait que ce que le personnage sait.
-// Le personnage est un inquisiteur de troisième classe, originaire de Courveil,
+// Le personnage est un inquisiteur de troisième classe, natif de Courveil,
+// en poste au bureau de l'Inquisition de sa ville,
 // qui ne connaît que la version d'Huma. Rien de ce que le dossier de présentation
 // révèle au lecteur (l'origine d'Huma, les mères exilées, les Astromanciens…)
 // ne doit apparaître ici avant qu'il ne l'ait appris en jeu.
@@ -26,7 +28,7 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Fille d'Olre, mère des Hommes, protectrice de l'Humanité. Vous dites son nom chaque matin.",
+          text: "Fille d'Olre, qui est le soleil. Mère des Hommes, protectrice de l'Humanité. Vous dites son nom chaque matin.",
         },
       ],
     },
@@ -82,7 +84,27 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Le bras d'Huma. Un inquisiteur est un officier : il reçoit les dénonciations, conduit les arrestations et les rafles, et fait respecter la doctrine dans l'espace public. Vous venez d'y entrer, à la troisième classe, la dernière.",
+          text: "Le bras d'Huma. Un inquisiteur est un officier : il reçoit les dénonciations, conduit les arrestations et les rafles, et fait respecter la doctrine dans l'espace public. L'Inquisition tient un bureau dans chaque grande ville des Hommes. Elle siège à Assise ; son cœur est à Calnire. Vous venez d'y entrer, au bureau de Courveil, à la troisième classe, la dernière.",
+        },
+      ],
+    },
+    {
+      id: 'chatiments',
+      title: 'Les châtiments',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Un Elfe arrêté à Courveil répond de ses actes comme un Homme, et il est châtié trois fois plus. Dans le Sud, on châtie les Elfes en place publique. Au Nord, seuls les bureaux assez forts se le permettent : c'est possible à Terner, mal vu à Rive Claire, impossible à Vilpière, formellement interdit à Col Carnem. Le vôtre n'en a pas le poids.",
+        },
+      ],
+    },
+    {
+      id: 'an-un',
+      title: "L'An 1",
+      versions: [
+        {
+          source: 'Ce que chacun sait',
+          text: "La fin de l'Âge Sombre : l'empereur disparut, Assise renaquit, et le Conseil Continental avec elle. On compte les années depuis. Nous sommes en l'An 538.",
         },
       ],
     },
@@ -112,7 +134,7 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on raconte",
-          text: "Le continent désolé, au sud-est. On l'a fui il y a plus d'un siècle. Il n'en reste que des légendes, et le goût qu'on a de se les redire.",
+          text: "Les terres du sud-est, de l'autre côté de la mer. Des gens en arrivent par bateaux depuis peu. On dit qu'ils ont tout laissé, et qu'ils ne savent pas nommer ce qu'ils fuient. La citadelle d'Arsenault, elle, tient toujours et envoie des nouvelles.",
         },
       ],
     },
@@ -138,7 +160,7 @@ export const world: World = {
           y: 252,
           region: 'Blanche Sévérie',
           description:
-            "Siège de la République du Nord, accrochée au flanc d'une chaîne toujours blanche. Nulle armée ne vaut la sienne. C'est la seule ville où les Elfes se pavanent dans les rues sans être inquiétés. Au-delà s'arrête le monde praticable.",
+            "Siège de la République du Nord, accrochée au flanc d'une chaîne toujours blanche. Nulle armée ne vaut la sienne. Les Elfes s'y pavanent dans les rues sans être inquiétés, et il est formellement interdit de les y châtier en public. Au-delà s'arrête le monde praticable.",
         },
         {
           id: 'vilpiere',
@@ -147,7 +169,7 @@ export const world: World = {
           y: 355,
           region: 'Blanche Sévérie',
           description:
-            "Une ville de Sévérie, là où la neige cède aux forêts.",
+            "Une ville de Sévérie, là où la neige cède aux forêts. L'Inquisition n'y a pas les moyens de châtier un Elfe en place publique.",
         },
         {
           id: 'bordemer',
@@ -165,7 +187,7 @@ export const world: World = {
           y: 680,
           region: 'Les Lacs',
           description:
-            "Le chef-lieu des Lacs, au bord de la falaise : une ville de marchands qui ne dort jamais. On dit que toute pièce d'or en circulation y est passée un jour. Ses dizaines de ponts de pierre sont le seul passage entre le Nord et le Sud.",
+            "Le chef-lieu des Lacs, au bord de la falaise : une ville de marchands qui ne dort jamais. On dit que toute pièce d'or en circulation y est passée un jour. Ses dizaines de ponts de pierre sont le seul passage entre le Nord et le Sud. Châtier un Elfe en public y est très mal vu : c'est mauvais pour les affaires.",
         },
         {
           id: 'courveil',
@@ -175,9 +197,9 @@ export const world: World = {
           region: 'Hautes Plaines',
           // d'après la carte
           description:
-            "Votre ville natale, sur le fleuve, à la lisière des Lacs et des Hautes Plaines. La Loi Pourpre y est interdite ; les Elfes n'y sont pas pour autant les égaux des Hommes.",
+            "Votre ville natale, sur le fleuve, à la lisière des Lacs et des Hautes Plaines. Vous y servez au bureau de l'Inquisition. La Loi Pourpre y est interdite ; les Elfes n'y sont pas pour autant les égaux des Hommes.",
           dialogue: 'operation',
-          actionLabel: "Lire l'ordre de mission",
+          actionLabel: "Passer au bureau de l'Inquisition",
         },
         {
           id: 'terner',
@@ -186,7 +208,7 @@ export const world: World = {
           y: 415,
           region: 'Hautes Plaines',
           description:
-            "Le siège d'un roi, dans un royaume lointain et sans histoire. On y vit d'élevage et de pêche en eaux froides.",
+            "Le siège d'un roi, dans un royaume lointain et sans histoire. On y vit d'élevage et de pêche en eaux froides. Le bureau de l'Inquisition y est assez fort pour châtier en place publique.",
         },
         {
           id: 'mortneuve',
@@ -215,7 +237,7 @@ export const world: World = {
           y: 718,
           region: 'Valore',
           description:
-            "La sœur jumelle de Rive Claire, sur la rive sud de l'Aînée. Ici commence le plateau de Valore, et avec lui le Sud.",
+            "La sœur jumelle de Rive Claire, sur la rive sud de l'Aînée. Ici commence le plateau de Valore, et avec lui le Sud, où l'on châtie les Elfes sur les places.",
         },
         {
           id: 'assise',
@@ -224,7 +246,9 @@ export const world: World = {
           y: 768,
           region: 'Valore',
           description:
-            "Capitale du Valore, la contrée la plus riche du monde, et siège du Conseil Continental. Le Nord et le Sud s'y parlent ; on y débat de tout, et d'abord de la question elfique.",
+            "Capitale du Valore, la contrée la plus riche du monde. Le Conseil Continental y siège, et l'Inquisition aussi. Le Nord et le Sud s'y parlent ; on y débat de tout, et d'abord de la question elfique.",
+          dialogue: 'assise',
+          actionLabel: "Se présenter au siège de l'Inquisition",
         },
         {
           id: 'freteaux',
@@ -278,7 +302,7 @@ export const world: World = {
           y: 1127,
           region: 'Alyr',
           description:
-            "La cité blanche des rois du Sud, loin de toutes les autres, et méfiante envers le Nord. De ses murailles, dit-on, on aperçoit Estarec.",
+            "La cité blanche des rois du Sud, loin de toutes les autres, et méfiante envers le Nord. C'est là que bat le cœur de l'Inquisition. De ses murailles, dit-on, on aperçoit Estarec.",
         },
         {
           id: 'selene',
@@ -343,6 +367,11 @@ export const world: World = {
       name: 'Ordre de mission',
       description: "Votre premier. Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits.",
     },
+    convocation: {
+      id: 'convocation',
+      name: 'Convocation',
+      description: "Scellée d'Assise. Elle dit où et quand. Elle ne dit pas pourquoi.",
+    },
   },
 
   quests: {
@@ -353,6 +382,14 @@ export const world: World = {
         rue: "Une dénonciation, rue Basse, à Courveil : un Elfe y aurait gâté le puits. Vous avez quatre hommes et la journée.",
         arrete: "Vous avez arrêté l'Elfe de la rue Basse. La rue a applaudi.",
         classe: "Vous êtes reparti sans l'Elfe de la rue Basse. Il faudra en répondre.",
+      },
+    },
+    convocation: {
+      id: 'convocation',
+      title: 'La convocation',
+      stages: {
+        route: "Assise vous convoque : vous y assisterez à des réunions, en observateur. On ne vous dit pas lesquelles. La route passe par Rive Claire et ses ponts.",
+        observateur: "Vous êtes à Assise. On vous a désigné un banc, au fond. Écouter. Ne pas parler.",
       },
     },
   },
@@ -366,10 +403,12 @@ export const world: World = {
       start: [
         { if: { questNotStarted: 'operation' }, node: 'ordre' },
         { if: { questStage: ['operation', 'rue'] }, node: 'rue' },
+        { if: { questDone: 'operation', questNotStarted: 'convocation', flags: ['elfe_epargne'] }, node: 'lettre_puits' },
+        { if: { questDone: 'operation', questNotStarted: 'convocation' }, node: 'lettre' },
       ],
       nodes: {
         ordre: {
-          text: "Votre premier ordre de mission vous attend, plié en quatre. Une dénonciation, rue Basse : un Elfe y aurait gâté le puits. On vous donne quatre hommes et la journée.",
+          text: "Au bureau, votre premier ordre de mission vous attend, plié en quatre. Une dénonciation, rue Basse : un Elfe y aurait gâté le puits. On vous donne quatre hommes et la journée.",
           effects: [{ giveItem: 'ordre' }, { questStage: ['operation', 'rue'] }],
           choices: [{ text: 'Se rendre rue Basse.', next: 'rue' }, { text: 'Plus tard.' }],
         },
@@ -411,10 +450,30 @@ export const world: World = {
           ],
         },
         arrete: {
-          text: "Il vous suit sans que vos hommes aient à le toucher. Derrière vous, la rue applaudit. Vous êtes officier d'Huma, et la journée n'est pas finie.",
+          text: "Il vous suit sans que vos hommes aient à le toucher. Derrière vous, la rue applaudit. Il répondra du puits comme un Homme en répondrait, et il paiera trois fois. Vous êtes officier d'Huma, et la journée n'est pas finie.",
+        },
+        lettre_puits: {
+          text: "Une lettre vous attend au bureau, scellée d'Assise. Vous pensez aussitôt au puits de la rue Basse, et aux trois lignes que vous avez écrites.",
+          choices: [{ text: 'Ouvrir la lettre.', next: 'lettre' }],
+        },
+        lettre: {
+          text: "Assise vous convoque. Vous y assisterez, en observateur, à des réunions dont on ne vous dit pas l'objet. Aucun motif. Au bureau, on vous regarde comme on regarde un homme qui monte, ou un homme qui tombe : personne ne sait encore lequel.",
+          effects: [{ giveItem: 'convocation' }, { questStage: ['convocation', 'route'] }],
         },
         classe: {
           text: "Vos hommes se regardent. La voisine vous regarde. Vous écrivez trois lignes au dos de l'ordre, et vous savez déjà qu'on vous demandera pourquoi.",
+        },
+      },
+    },
+
+    // ÉBAUCHE — l'arrivée à Assise. Les réunions elles-mêmes restent à écrire.
+    assise: {
+      id: 'assise',
+      start: [{ if: { questStage: ['convocation', 'route'] }, node: 'arrivee' }],
+      nodes: {
+        arrivee: {
+          text: "Le siège de l'Inquisition vous reçoit sans chaleur et sans surprise. On vérifie le sceau, on écorche le nom de Courveil, puis on vous désigne un banc, au fond. « Observateur. Vous écoutez. Vous ne parlez pas. »",
+          effects: [{ questStage: ['convocation', 'observateur'] }],
         },
       },
     },

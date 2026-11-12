@@ -15,13 +15,13 @@ de la nouvelle.
 ## État du contenu
 
 - **Source** : la bible de l'univers (novembre 2026) et les indications de l'auteur.
-- **Carte du monde** : version première, dix-neuf villes placées, An 666.
+- **Carte du monde** : version première, dix-neuf villes placées. Le jeu commence en l'An 538.
   Estarec n'est pas accessible.
 - **Descriptions** : limitées à ce qu'un jeune inquisiteur peut savoir. Celles
   marquées `// d'après la carte` dans `src/content/index.ts` attendent le texte de l'auteur.
 - **Chemins** : hypothèse de travail, à corriger.
 - **Doctrine d'Huma** (onglet Savoir) : posée d'après les indications de l'auteur ; le récit des origines est une proposition.
-- **Ouverture à Courveil** (« Première opération ») : ébauche à réécrire.
+- **Ouverture à Courveil** (« Première opération ») puis **convocation à Assise** : ébauches à réécrire. Les réunions d'Assise restent à écrire.
 
 ## Lancer
 
