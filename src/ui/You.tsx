@@ -9,6 +9,7 @@ export function You({ author }: { author: boolean }) {
   const { player, toggleUniform, reset, load } = useGame();
   const file = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
+  const [confirming, setConfirming] = useState(false);
 
   const exportSave = () => {
     const blob = new Blob([JSON.stringify({ jeu: 'sanctuaire', player }, null, 2)], { type: 'application/json' });
@@ -68,9 +69,26 @@ export function You({ author }: { author: boolean }) {
             <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => importSave(e.target.files?.[0])} />
           </div>
           {message && <p className="muted">{message}</p>}
-          <button className="quiet" onClick={() => confirm('Effacer la partie et tout recommencer ?') && reset()}>
-            Recommencer depuis le début
-          </button>
+          {confirming ? (
+            <div className="actions">
+              <button
+                className="plain"
+                onClick={() => {
+                  reset();
+                  setConfirming(false);
+                }}
+              >
+                Oui, effacer la partie
+              </button>
+              <button className="plain" onClick={() => setConfirming(false)}>
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <button className="quiet" onClick={() => setConfirming(true)}>
+              Recommencer depuis le début
+            </button>
+          )}
         </article>
 
         {author && <Author />}

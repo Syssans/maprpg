@@ -17,7 +17,7 @@ Une **erreur** empêche de publier le jeu ; un **avertissement** mérite un coup
 Pour essayer en jouant, lancez `npm run dev`. L'onglet **Vous** contient alors un
 **mode auteur** : aller à n'importe quel lieu, ouvrir n'importe quel passage, changer
 le jour, cocher des faits, voir le dossier que l'Inquisition tient sur le joueur.
-Sur le jeu publié, ajoutez `?auteur` à l'adresse.
+Sur le jeu publié, ajoutez `?auteur` ou `#auteur` à l'adresse.
 
 ## Les règles communes
 

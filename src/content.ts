@@ -23,5 +23,6 @@ export const playable = !!world.maps[world.game.startMap]?.places.some(
 /** Chemin d'une ressource du dossier public/, quel que soit l'endroit où le jeu est hébergé. */
 export const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
-/** Le mode auteur s'ouvre en développement, ou en ajoutant « ?auteur » à l'adresse. */
-export const authorMode = import.meta.env.DEV || new URLSearchParams(location.search).has('auteur');
+/** Le mode auteur s'ouvre en développement, ou en ajoutant « ?auteur » ou « #auteur » à l'adresse. */
+export const authorMode =
+  import.meta.env.DEV || new URLSearchParams(location.search).has('auteur') || location.hash === '#auteur';
