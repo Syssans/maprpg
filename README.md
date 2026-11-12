@@ -14,6 +14,7 @@ de la nouvelle.
 
 ## État du contenu
 
+- **Source** : la bible de l'univers (novembre 2026) et les indications de l'auteur.
 - **Carte du monde** : version première, dix-neuf villes placées, An 666.
   Estarec n'est pas accessible.
 - **Descriptions** : limitées à ce qu'un jeune inquisiteur peut savoir. Celles

@@ -6,9 +6,11 @@
 // révèle au lecteur (l'origine d'Huma, les mères exilées, les Astromanciens…)
 // ne doit apparaître ici avant qu'il ne l'ait appris en jeu.
 //
+// Source : la bible de l'univers (novembre 2026) et les indications de l'auteur.
+// La carte est dessinée en 3072 px mais repérée sur une grille de 2000 × 1564.
+//
 // - Les descriptions marquées « d'après la carte » ne s'appuient que sur le dessin.
 // - Les chemins sont une hypothèse de travail.
-// - La doctrine d'Huma (rubrique `lore`) reste à écrire par l'auteur.
 import type { World } from '../engine/types';
 
 const base = import.meta.env.BASE_URL;
@@ -24,18 +26,18 @@ export const world: World = {
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Huma est la déesse protectrice du genre humain. Vous dites son nom chaque matin.",
+          text: "Fille d'Olre, mère des Hommes, protectrice de l'Humanité. Vous dites son nom chaque matin.",
         },
       ],
     },
     {
-      // PROPOSITION — l'auteur n'a pas tranché le récit des origines.
       id: 'hommes',
       title: 'Les Hommes',
       versions: [
         {
           source: "Ce qu'on vous a enseigné",
-          text: "Nous sommes les enfants d'Huma. Elle nous a mis au monde, et quand les Elfes ont voulu notre perte, elle nous a cachés, nourris et conduits en lieu sûr.",
+          // La seconde phrase est une proposition : la bible dit seulement « enfants d'Huma ».
+          text: "Nous sommes les enfants d'Huma. Quand les Elfes ont voulu notre perte, elle nous a cachés, nourris et conduits en lieu sûr.",
         },
       ],
     },
@@ -51,6 +53,26 @@ export const world: World = {
           if: { flags: ['puits_su'] },
           source: 'Ce que vous avez constaté',
           text: "Rue Basse, on a dénoncé un Elfe pour un puits gâté. Le puits l'était avant qu'il n'habite la rue. Personne, sauf vous, n'a trouvé que cela changeait quelque chose.",
+        },
+      ],
+    },
+    {
+      id: 'folie',
+      title: 'La Folie Elfique',
+      versions: [
+        {
+          source: 'Ce que chacun sait',
+          text: "Un mal de l'esprit, propre aux Elfes : la colère d'abord, puis la violence, puis plus rien d'eux-mêmes. Il se prend au contact. Il a dévasté des régions entières, et un Elfe vit des siècles : celui que vous croisez a pu le porter.",
+        },
+      ],
+    },
+    {
+      id: 'heresie',
+      title: 'Bordemer',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Bordemer ouvrit jadis son pont aux Elfes. Le prophète d'Huma nomma cela une hérésie. Il ne reste de la ville que des ruines.",
         },
       ],
     },
@@ -84,6 +106,16 @@ export const world: World = {
         },
       ],
     },
+    {
+      id: 'estarec',
+      title: 'Estarec',
+      versions: [
+        {
+          source: "Ce qu'on raconte",
+          text: "Le continent désolé, au sud-est. On l'a fui il y a plus d'un siècle. Il n'en reste que des légendes, et le goût qu'on a de se les redire.",
+        },
+      ],
+    },
   ],
 
   startMap: 'monde',
@@ -106,17 +138,16 @@ export const world: World = {
           y: 252,
           region: 'Blanche Sévérie',
           description:
-            "Capitale de la République du Nord, sur des terres glacées. Sa puissance militaire est sans égale. C'est la seule ville où les Elfes se pavanent dans les rues sans être inquiétés. Au-delà s'arrête le monde praticable.",
+            "Siège de la République du Nord, accrochée au flanc d'une chaîne toujours blanche. Nulle armée ne vaut la sienne. C'est la seule ville où les Elfes se pavanent dans les rues sans être inquiétés. Au-delà s'arrête le monde praticable.",
         },
         {
           id: 'vilpiere',
           name: 'Vilpière',
           x: 433,
           y: 355,
-          region: 'Verte Sévérie',
-          // d'après la carte
+          region: 'Blanche Sévérie',
           description:
-            "Là où la neige cède aux plaines forestières. Un peuple cosmopolite y vit sous l'autorité de Col Carnem.",
+            "Une ville de Sévérie, là où la neige cède aux forêts.",
         },
         {
           id: 'bordemer',
@@ -124,8 +155,8 @@ export const world: World = {
           x: 314,
           y: 685,
           region: 'Les Lacs',
-          // d'après la carte — en attente de ce que la doctrine dit de Bordemer
-          description: "Une ville des Lacs, là où l'Aînée rejoint la mer de l'ouest.",
+          description:
+            "Des ruines, là où l'Aînée rejoint la mer. C'est ici, vous a-t-on appris, que l'on ouvrit jadis un pont aux Elfes.",
         },
         {
           id: 'rive-claire',
@@ -134,7 +165,7 @@ export const world: World = {
           y: 680,
           region: 'Les Lacs',
           description:
-            "Le grenier du continent s'arrête ici, au bord de la crevasse. Ses ponts sont le seul passage entre le Nord et le Sud.",
+            "Le chef-lieu des Lacs, au bord de la falaise : une ville de marchands qui ne dort jamais. On dit que toute pièce d'or en circulation y est passée un jour. Ses dizaines de ponts de pierre sont le seul passage entre le Nord et le Sud.",
         },
         {
           id: 'courveil',
@@ -154,7 +185,8 @@ export const world: World = {
           x: 906,
           y: 415,
           region: 'Hautes Plaines',
-          description: "Capitale d'un royaume tranquille : on y vit d'élevage et de pêche en eaux froides.",
+          description:
+            "Le siège d'un roi, dans un royaume lointain et sans histoire. On y vit d'élevage et de pêche en eaux froides.",
         },
         {
           id: 'mortneuve',
@@ -172,7 +204,7 @@ export const world: World = {
           y: 645,
           region: 'Hautes Plaines',
           description:
-            "La place forte des Elfes, la dernière. Vous n'y êtes jamais allé. On dit que sous ses montagnes s'étend une mer.",
+            "L'imposant château des Elfes, leur dernière place forte, au pied des montagnes. Vous n'y êtes jamais allé. On dit que sous la roche s'étend une mer.",
         },
 
         // ——— Sud de l'Aînée ———
@@ -182,7 +214,8 @@ export const world: World = {
           x: 500,
           y: 718,
           region: 'Valore',
-          description: "La jumelle sud de Rive Claire, de l'autre côté des ponts. Ici commence le plateau de Valore.",
+          description:
+            "La sœur jumelle de Rive Claire, sur la rive sud de l'Aînée. Ici commence le plateau de Valore, et avec lui le Sud.",
         },
         {
           id: 'assise',
@@ -190,7 +223,8 @@ export const world: World = {
           x: 155,
           y: 768,
           region: 'Valore',
-          description: "La ville du Conseil Continental, où le Nord et le Sud se parlent. On y débat de tout, et d'abord de la question elfique.",
+          description:
+            "Capitale du Valore, la contrée la plus riche du monde, et siège du Conseil Continental. Le Nord et le Sud s'y parlent ; on y débat de tout, et d'abord de la question elfique.",
         },
         {
           id: 'freteaux',
@@ -216,7 +250,8 @@ export const world: World = {
           x: 312,
           y: 1148,
           region: 'Alyr occidental',
-          description: "On la connaît pour son tunnel troglodyte, long de douze kilomètres sous la montagne.",
+          description:
+            "L'entrée du tunnel qui mène à Portvilla sous la montagne : douze kilomètres de long, et toute une ville creusée dans la roche.",
         },
         {
           id: 'rosebourg',
@@ -243,7 +278,7 @@ export const world: World = {
           y: 1127,
           region: 'Alyr',
           description:
-            "La cité blanche des rois, fermée et méfiante. De ses murailles, dit-on, on voit désormais les difformités de la Tempête.",
+            "La cité blanche des rois du Sud, loin de toutes les autres, et méfiante envers le Nord. De ses murailles, dit-on, on aperçoit Estarec.",
         },
         {
           id: 'selene',
@@ -269,8 +304,8 @@ export const world: World = {
           x: 460,
           y: 1375,
           region: 'Alyr méridional',
-          // d'après la carte
-          description: "Un port à l'extrémité sud du continent.",
+          description:
+            "Un port à l'extrémité sud du continent, au débouché du tunnel de Tissin.",
         },
       ],
       routes: [
