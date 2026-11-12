@@ -37,6 +37,6 @@ export const useGame = create<Store>()(
       clearNotices: () => set({ notices: [] }),
       reset: () => set({ player: rules.initialState(world), notices: [] }),
     }),
-    { name: 'maprpg-save-v2', partialize: (s) => ({ player: s.player }) },
+    { name: 'maprpg-save-v3', partialize: (s) => ({ player: s.player }) },
   ),
 );

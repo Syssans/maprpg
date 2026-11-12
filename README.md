@@ -4,14 +4,22 @@ RPG d'exploration et de dialogue, joué sur une carte. Webapp pensée d'abord po
 le mobile, utilisable aussi sur ordinateur. Les personnages et les lieux ne sont
 pas représentés : la carte et le texte suffisent, le reste appartient au joueur.
 
+## Règle d'écriture
+
+Le joueur ne sait que ce que le personnage sait. Il incarne un inquisiteur de
+troisième classe, originaire de Courveil, qui ne connaît que la version d'Huma.
+Ce que l'auteur sait de son monde n'entre dans le jeu qu'au moment où le
+personnage l'apprend : l'onglet « Savoir » garde alors l'ancienne version à côté
+de la nouvelle.
+
 ## État du contenu
 
 - **Carte du monde** : version première, dix-neuf villes placées, An 666.
   Estarec n'est pas accessible.
-- **Descriptions** : tirées du dossier de présentation. Celles marquées
-  `// d'après la carte` dans `src/content/index.ts` attendent le texte de l'auteur.
+- **Descriptions** : limitées à ce qu'un jeune inquisiteur peut savoir. Celles
+  marquées `// d'après la carte` dans `src/content/index.ts` attendent le texte de l'auteur.
 - **Chemins** : hypothèse de travail, à corriger.
-- **Assise** (plan et scène du Conseil) : ébauche à réécrire.
+- **Doctrine d'Huma, quêtes, dialogues** : à écrire.
 
 ## Lancer
 
@@ -32,6 +40,7 @@ npm run dev
 - **Exploration** : on ne voit que les lieux visités et ceux qu'un chemin y relie.
 - **Dialogues à embranchements**, avec conditions et conséquences.
 - **Quêtes** (journal), **objets** (sac), sauvegarde locale automatique.
+- **Savoir** : ce que le personnage croit, sujet par sujet, et ce qu'il apprend ensuite.
 
 ## Organisation
 

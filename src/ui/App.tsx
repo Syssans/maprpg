@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { world } from '../content';
-import { canLeave, check, key, knownPlaces, neighbours, visibleChoices } from '../engine/rules';
+import { canLeave, check, describe, knownLore, knownPlaces, neighbours, visibleChoices } from '../engine/rules';
 import { useGame } from '../engine/store';
 import { MapView } from './MapView';
 
-type Tab = 'carte' | 'journal' | 'sac';
+type Tab = 'carte' | 'journal' | 'savoir' | 'sac';
 
 export function App() {
   const game = useGame();
@@ -27,7 +27,6 @@ export function App() {
 
   const place = map.places.find((p) => p.id === (selected ?? current))!;
   const isHere = place.id === current;
-  const seen = player.visited.includes(key(map.id, place.id));
   const hasTalk =
     isHere && place.dialogue && world.dialogues[place.dialogue].start.some((s) => check(player, s.if));
 
@@ -58,7 +57,7 @@ export function App() {
           <section className="sheet">
             {place.region && <small className="region">{place.region}</small>}
             <h2>{place.name}</h2>
-            <p>{seen ? place.description : 'Vous ne connaissez de ce lieu que le nom.'}</p>
+            <p>{describe(player, place)}</p>
             <div className="actions">
               {!isHere && reachable.includes(place.id) && (
                 <button
@@ -88,6 +87,7 @@ export function App() {
 
         {player.dialogue && <DialogueView />}
         {tab === 'journal' && !player.dialogue && <Journal />}
+        {tab === 'savoir' && !player.dialogue && <Knowledge />}
         {tab === 'sac' && !player.dialogue && <Bag />}
 
         {game.notices.length > 0 && (
@@ -104,6 +104,7 @@ export function App() {
           [
             ['carte', 'Carte'],
             ['journal', 'Journal'],
+            ['savoir', 'Savoir'],
             ['sac', 'Sac'],
           ] as const
         ).map(([id, label]) => (
@@ -186,6 +187,29 @@ function Bag() {
               {n > 1 && ` ×${n}`}
             </h3>
             <p>{world.items[id].description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Knowledge() {
+  const { player } = useGame();
+  return (
+    <section className="page">
+      <div className="scroll">
+        <small className="region">Originaire de {world.character.origin}</small>
+        <h2>{world.character.title}</h2>
+        {knownLore(world, player).map((l) => (
+          <article key={l.id}>
+            <h3>{l.title}</h3>
+            {l.versions.map((v, i) => (
+              <div key={i} className="version">
+                <small className="region">{v.source}</small>
+                <p>{v.text}</p>
+              </div>
+            ))}
           </article>
         ))}
       </div>

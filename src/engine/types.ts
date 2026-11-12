@@ -29,7 +29,10 @@ export interface Place {
   y: number;
   /** Région ou royaume, affiché au-dessus du nom */
   region?: string;
+  /** Ce que le personnage sait du lieu en commençant */
   description: string;
+  /** Ce qu'il en sait une fois la condition remplie : la première qui s'applique remplace la description */
+  descriptions?: { if: Condition; text: string }[];
   /** Carte de niveau inférieur dans laquelle on peut entrer depuis ce lieu */
   enters?: string;
   dialogue?: string;
@@ -90,7 +93,25 @@ export interface Item {
   description: string;
 }
 
+/**
+ * Un sujet du savoir du personnage. Le joueur ne sait que ce que le personnage sait :
+ * chaque version n'apparaît qu'une fois sa condition remplie, et s'ajoute aux
+ * précédentes sans les effacer — on doit pouvoir relire ce qu'on croyait.
+ */
+export interface Lore {
+  id: string;
+  title: string;
+  versions: { if?: Condition; source: string; text: string }[];
+}
+
+export interface Character {
+  title: string;
+  origin: string;
+}
+
 export interface World {
+  character: Character;
+  lore: Lore[];
   startMap: string;
   maps: Record<string, MapDef>;
   dialogues: Record<string, Dialogue>;

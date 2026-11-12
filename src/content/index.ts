@@ -1,15 +1,44 @@
-// L'univers du « Sanctuaire et la Tempête », An 666.
+// « Le Sanctuaire et la Tempête », An 666.
 //
-// Sources : le dossier de présentation et la carte du monde (version première).
-// - Les descriptions marquées « d'après la carte » ne s'appuient que sur le dessin :
-//   elles attendent le texte de l'auteur.
-// - Les chemins sont une hypothèse de travail, à corriger.
-// - Le plan d'Assise et la scène du Conseil sont une ébauche à réécrire.
+// RÈGLE D'ÉCRITURE : le joueur ne sait que ce que le personnage sait.
+// Le personnage est un inquisiteur de troisième classe, originaire de Courveil,
+// qui ne connaît que la version d'Huma. Rien de ce que le dossier de présentation
+// révèle au lecteur (l'origine d'Huma, les mères exilées, les Astromanciens…)
+// ne doit apparaître ici avant qu'il ne l'ait appris en jeu.
+//
+// - Les descriptions marquées « d'après la carte » ne s'appuient que sur le dessin.
+// - Les chemins sont une hypothèse de travail.
+// - La doctrine d'Huma (rubrique `lore`) reste à écrire par l'auteur.
 import type { World } from '../engine/types';
 
 const base = import.meta.env.BASE_URL;
 
 export const world: World = {
+  character: { title: 'Inquisiteur de troisième classe', origin: 'Courveil' },
+
+  lore: [
+    {
+      id: 'huma',
+      title: 'Huma',
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Huma est la déesse des Hommes. Vous dites son nom chaque matin.",
+        },
+      ],
+    },
+    {
+      id: 'inquisition',
+      title: "L'Inquisition",
+      versions: [
+        {
+          source: "Ce qu'on vous a enseigné",
+          text: "Le bras de la foi d'Huma, et la garde du genre humain. Vous venez d'y entrer, au dernier rang : la troisième classe.",
+        },
+      ],
+    },
+  ],
+
   startMap: 'monde',
 
   maps: {
@@ -20,7 +49,7 @@ export const world: World = {
       width: 2000,
       height: 1564,
       printedLabels: true,
-      entry: 'assise',
+      entry: 'courveil',
       places: [
         // ——— Nord de l'Aînée ———
         {
@@ -48,8 +77,8 @@ export const world: World = {
           x: 314,
           y: 685,
           region: 'Les Lacs',
-          description:
-            "La ville que fondèrent les mères exilées. D'ici, les Hommes jetèrent le premier pont au-dessus de l'Aînée. Il n'en reste rien.",
+          // d'après la carte — en attente de ce que la doctrine dit de Bordemer
+          description: "Une ville des Lacs, là où l'Aînée rejoint la mer de l'ouest.",
         },
         {
           id: 'rive-claire',
@@ -67,7 +96,7 @@ export const world: World = {
           y: 546,
           region: 'Hautes Plaines',
           // d'après la carte
-          description: "Une ville de fleuve, à la lisière des Lacs et des Hautes Plaines.",
+          description: "Votre ville natale. Une ville de fleuve, à la lisière des Lacs et des Hautes Plaines.",
         },
         {
           id: 'terner',
@@ -111,9 +140,7 @@ export const world: World = {
           x: 155,
           y: 768,
           region: 'Valore',
-          description:
-            "La ville du Conseil Continental, née de la réconciliation du Nord et du Sud. On y débat de tout, et d'abord de la question elfique.",
-          enters: 'assise',
+          description: "La ville du Conseil Continental, où le Nord et le Sud se parlent. On y débat de tout, et d'abord de la question elfique.",
         },
         {
           id: 'freteaux',
@@ -166,7 +193,7 @@ export const world: World = {
           y: 1127,
           region: 'Alyr',
           description:
-            "La cité blanche des rois, fermée et méfiante. De ses murailles, on voit la mer là où aurait dû se dresser Salande — et, désormais, les difformités de la Tempête.",
+            "La cité blanche des rois, fermée et méfiante. De ses murailles, dit-on, on voit désormais les difformités de la Tempête.",
         },
         {
           id: 'selene',
@@ -223,123 +250,11 @@ export const world: World = {
         ['sevirin', 'portvilla'],
       ],
     },
-
-    // ÉBAUCHE — plan provisoire, en attendant une carte d'Assise.
-    assise: {
-      id: 'assise',
-      name: 'Assise',
-      image: `${base}maps/assise.svg`,
-      width: 1200,
-      height: 900,
-      entry: 'portes',
-      parent: 'monde',
-      places: [
-        {
-          id: 'portes',
-          name: 'Les portes de la ville',
-          x: 380,
-          y: 560,
-          description: "On entre à Assise comme on entre en séance : en déclinant d'abord qui l'on représente.",
-        },
-        {
-          id: 'conseil',
-          name: 'Le Conseil Continental',
-          x: 800,
-          y: 340,
-          description:
-            "Depuis la réconciliation, le Nord et le Sud s'y parlent au lieu de se battre. Personne n'y est d'accord, et c'est ce qui tient la paix.",
-          dialogue: 'seance',
-          actionLabel: 'Prendre place',
-        },
-      ],
-      routes: [['portes', 'conseil']],
-    },
   },
 
   items: {},
 
-  quests: {
-    seance: {
-      id: 'seance',
-      title: 'La séance',
-      stages: {
-        entendu:
-          "Au Conseil, un délégué du Sud a parlé du Fléau comme d'une affaire classée. Le représentant de Noctem n'a rien répondu.",
-        soeur:
-          "Le représentant de Noctem a enterré sa sœur, devenue fléotique. Ce que la doctrine nomme un fait d'histoire, il l'appelle par un prénom qu'il ne vous a pas dit.",
-      },
-    },
-  },
+  quests: {},
 
-  // ÉBAUCHE — d'après la piste de scène du dossier : le vieux représentant de Noctem
-  // entend les humains parler du Fléau comme d'un fait historique.
-  // Le joueur est l'Inquisiteur ; aucun personnage n'est encore nommé.
-  dialogues: {
-    seance: {
-      id: 'seance',
-      start: [
-        { if: { questNotStarted: 'seance' }, node: 'ouverture' },
-        { if: { questStage: ['seance', 'entendu'] }, node: 'retour' },
-        { node: 'vide' },
-      ],
-      nodes: {
-        ouverture: {
-          text: "Vous avez dit ce matin le nom d'Huma, comme chaque matin, et vous prenez votre place parmi les représentants. On débat de la Loi Pourpre. On en débat depuis si longtemps que les phrases sont usées aux coudes.",
-          choices: [{ text: 'Écouter.', next: 'delegue' }],
-        },
-        delegue: {
-          speaker: 'Un délégué du Sud',
-          text: "Le Fléau appartient à l'histoire. Nous en parlons comme nos aïeux parlaient des grandes crues : avec respect, et avec la ferme intention de ne plus bâtir au bord de l'eau.",
-          choices: [
-            { text: 'Approuver de la tête. La doctrine ne dit pas autre chose.', next: 'regard' },
-            { text: 'Regarder comment la salle reçoit ces mots.', next: 'regard' },
-          ],
-        },
-        regard: {
-          text: "Au banc de Noctem, un vieil Elfe écoute sans bouger. Il ne proteste pas. Il a l'air d'un homme à qui l'on décrit sa propre maison, et qui ne la reconnaît pas.",
-          effects: [{ questStage: ['seance', 'entendu'] }],
-          choices: [
-            { text: "Aller le trouver quand la séance s'interrompt.", next: 'approche' },
-            { text: 'Rester à votre place.' },
-          ],
-        },
-        retour: {
-          text: "La séance est suspendue. Le représentant de Noctem est resté assis à son banc, seul, les mains à plat sur le bois.",
-          choices: [{ text: 'Aller le trouver.', next: 'approche' }, { text: 'Le laisser.' }],
-        },
-        approche: {
-          speaker: 'Le représentant de Noctem',
-          text: "Inquisiteur. Vous venez m'expliquer ce que j'ai entendu, ou me demander ce que j'en pense ?",
-          choices: [
-            { text: "Vous l'expliquer. La Loi ne tue personne.", next: 'doctrine' },
-            { text: 'Vous le demander.', next: 'soeur' },
-          ],
-        },
-        doctrine: {
-          speaker: 'Le représentant de Noctem',
-          text: "Non. Elle attend. C'est une loi patiente, je vous l'accorde. Vous croyez ce que vous dites, n'est-ce pas ? C'est ce qui me rend la chose difficile.",
-          choices: [{ text: 'À quoi pensiez-vous, pendant qu’il parlait ?', next: 'soeur' }],
-        },
-        soeur: {
-          speaker: 'Le représentant de Noctem',
-          text: "À ma sœur. Elle a d'abord cessé de dormir. Puis elle s'est mise à compter les torts qu'on lui avait faits, et il y en avait de plus en plus. À la fin, elle ne savait plus mon nom. Je l'ai enterrée moi-même. Votre collègue appelle cela l'histoire.",
-          effects: [{ questStage: ['seance', 'soeur'] }],
-          choices: [
-            { text: 'Huma veille sur elle.', next: 'huma' },
-            { text: 'Ne rien dire.', next: 'silence' },
-          ],
-        },
-        huma: {
-          speaker: 'Le représentant de Noctem',
-          text: "Je le souhaite. Savez-vous seulement pour qui votre déesse a veillé, la première fois ?",
-        },
-        silence: {
-          text: "Il vous regarde un moment, puis incline la tête, comme on remercie quelqu'un de ne pas avoir parlé.",
-        },
-        vide: {
-          text: "Les bancs se vident. Le représentant de Noctem est parti. La séance reprendra, et l'on y dira les mêmes phrases.",
-        },
-      },
-    },
-  },
+  dialogues: {},
 };

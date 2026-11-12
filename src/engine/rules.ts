@@ -1,6 +1,6 @@
 // Règles pures : (état, action) -> nouvel état. Aucune dépendance à l'interface,
 // ce qui permettra de les exécuter côté serveur pour le multijoueur.
-import type { Condition, Effect, MapDef, PlayerState, World } from './types';
+import type { Condition, Effect, Lore, MapDef, Place, PlayerState, World } from './types';
 
 export const key = (mapId: string, placeId: string) => `${mapId}/${placeId}`;
 
@@ -31,6 +31,17 @@ export function check(s: PlayerState, c?: Condition): boolean {
   if (c.questNotStarted && s.quests[c.questNotStarted]) return false;
   if (c.questDone && !s.quests[c.questDone]?.done) return false;
   return true;
+}
+
+export function describe(s: PlayerState, place: Place): string {
+  return place.descriptions?.find((d) => check(s, d.if))?.text ?? place.description;
+}
+
+/** Les sujets dont le personnage sait quelque chose, réduits aux versions qu'il connaît. */
+export function knownLore(world: World, s: PlayerState): Lore[] {
+  return world.lore
+    .map((l) => ({ ...l, versions: l.versions.filter((v) => check(s, v.if)) }))
+    .filter((l) => l.versions.length > 0);
 }
 
 export interface Applied {
