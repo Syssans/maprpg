@@ -1,6 +1,19 @@
 // Règles pures : (monde, état, action) -> nouvel état. Aucune dépendance à l'interface,
 // ce qui permettra de les exécuter côté serveur pour le multijoueur.
-import type { Answer, Cond, Effect, Lore, MapDef, Op, Person, Place, PlayerState, Scene, World } from './types';
+import type {
+  Answer,
+  Cond,
+  Effect,
+  LogEntry,
+  Lore,
+  MapDef,
+  Op,
+  Person,
+  Place,
+  PlayerState,
+  Scene,
+  World,
+} from './types';
 
 export const key = (a: string, b: string) => `${a}/${b}`;
 
@@ -24,6 +37,8 @@ export function initialState(world: World): PlayerState {
     pendingReports: [],
     fired: [],
     news: [],
+    log: [],
+    notes: [],
   };
 }
 
@@ -258,9 +273,19 @@ export function leave(world: World, s: PlayerState): PlayerState {
 
 // ——— Scènes ———
 
+const say = (s: PlayerState, ...entries: LogEntry[]): PlayerState => ({ ...s, log: [...s.log, ...entries] });
+
+/** Inscrit dans le fil les conséquences d'une action, pour qu'on les lise là où elles surviennent. */
+const logged = (a: Applied): Applied => ({
+  ...a,
+  state: say(a.state, ...a.notices.map((text): LogEntry => ({ k: 'notice', text }))),
+});
+
+/** Ouvre un passage : son texte entre dans le fil, ses effets s'appliquent. */
 function openNode(world: World, s: PlayerState, scene: Scene, node: string): Applied {
-  const applied = apply(world, { ...s, dialogue: { scene: scene.id, node } }, scene.nodes[node].effects);
-  return applied;
+  const n = scene.nodes[node];
+  const base = say({ ...s, dialogue: { scene: scene.id, node } }, { k: 'text', speaker: n.speaker, text: n.text });
+  return apply(world, base, n.effects);
 }
 
 /** Scènes que l'on peut lancer depuis le lieu où se trouve le joueur. */
@@ -275,7 +300,7 @@ export function startScene(world: World, s: PlayerState, sceneId: string): Appli
   const scene = scenesHere(world, s).find((sc) => sc.id === sceneId);
   if (busy(s) || !scene) return same(s);
   const start = scene.starts.find((st) => check(world, s, st.if) && scene.nodes[st.node])!;
-  return openNode(world, s, scene, start.node);
+  return logged(openNode(world, { ...s, log: [] }, scene, start.node));
 }
 
 export function visibleChoices(world: World, s: PlayerState) {
@@ -291,10 +316,10 @@ export function choose(world: World, s: PlayerState, index: number): Applied {
   const choice = scene?.nodes[s.dialogue.node]?.choices[index];
   if (!choice) return same({ ...s, dialogue: null });
   if (!check(world, s, choice.if)) return same(s);
-  const first = apply(world, { ...s, dialogue: null }, choice.effects);
+  const first = logged(apply(world, say({ ...s, dialogue: null }, { k: 'you', text: choice.text }), choice.effects));
   // Un effet « + scène » a pu ouvrir une autre scène : elle prend alors le pas.
   if (!choice.next || first.state.dialogue) return first;
-  const second = openNode(world, first.state, scene, choice.next);
+  const second = logged(openNode(world, first.state, scene, choice.next));
   return { state: second.state, notices: [...first.notices, ...second.notices] };
 }
 
@@ -307,7 +332,10 @@ export function peopleHere(world: World, s: PlayerState): Person[] {
 
 export function openTalk(world: World, s: PlayerState, personId: string): PlayerState {
   if (busy(s) || !peopleHere(world, s).some((p) => p.id === personId)) return s;
-  return { ...s, talk: { person: personId } };
+  const person = world.people[personId];
+  const log: LogEntry[] = [{ k: 'title', text: person.name }];
+  if (person.intro) log.push({ k: 'text', text: person.intro });
+  return { ...s, talk: { person: personId }, log };
 }
 
 export const closeTalk = (s: PlayerState): PlayerState => ({ ...s, talk: null });
@@ -329,17 +357,14 @@ export function ask(world: World, s: PlayerState, topicId: string): Applied {
   const answer = answerFor(world, s, person, topic);
   const k = key(person.id, topicId) + (answer?.confront ? '!' : '');
   const first = !s.asked.includes(k);
-  const base: PlayerState = {
-    ...s,
-    asked: first ? [...s.asked, k] : s.asked,
-    talk: { person: person.id, topic: topicId, reply: answer?.text ?? 'Rien à vous dire là-dessus.' },
-  };
+  const base = say(
+    { ...s, asked: first ? [...s.asked, k] : s.asked },
+    { k: 'you', text: `À propos de : ${topic.title}` },
+    { k: 'text', speaker: person.name, text: answer?.text ?? 'Rien à vous dire là-dessus.' },
+  );
   // Les conséquences d'une réponse ne valent qu'une fois.
-  return first && answer ? apply(world, base, answer.effects) : same(base);
+  return first && answer ? logged(apply(world, base, answer.effects)) : same(base);
 }
-
-export const backToTopics = (s: PlayerState): PlayerState =>
-  s.talk ? { ...s, talk: { person: s.talk.person } } : s;
 
 // ——— Rapports ———
 
@@ -425,7 +450,7 @@ export function repair(world: World, raw: unknown): PlayerState {
     Object.entries(obj(s.quests)).filter(([id, q]) => world.quests[id] && q && q.stage in world.quests[id].stages),
   );
   s.dialogue = s.dialogue && world.scenes[s.dialogue.scene]?.nodes[s.dialogue.node] ? s.dialogue : null;
-  s.talk = s.talk && world.people[s.talk.person] ? s.talk : null;
+  s.talk = s.talk && world.people[s.talk.person] ? { person: s.talk.person } : null;
   s.day = Number.isFinite(s.day) && s.day >= 1 ? Math.floor(s.day) : 1;
   s.markers = obj(s.markers);
   s.dossier = arr(s.dossier);
@@ -435,5 +460,7 @@ export function repair(world: World, raw: unknown): PlayerState {
   s.pendingReports = arr(s.pendingReports).filter((id) => world.reports[id]);
   s.fired = arr(s.fired);
   s.news = arr(s.news).filter((id) => world.events.some((e) => e.id === id));
+  s.log = arr(s.log);
+  s.notes = arr(s.notes).filter((n) => n && world.maps[n.map]);
   return s;
 }

@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { world } from '../content';
 import * as rules from '../engine/rules';
 import { useGame } from '../engine/store';
-import type { ReportTag } from '../engine/types';
 
 /** Un texte dont les paragraphes sont séparés par une ligne vide. */
 export function Prose({ text, className }: { text: string; className?: string }) {
@@ -17,28 +16,86 @@ export function Prose({ text, className }: { text: string; className?: string })
   );
 }
 
-export function DialogueView() {
-  const { player, choose } = useGame();
-  const d = player.dialogue!;
-  const node = world.scenes[d.scene].nodes[d.node];
-  const choices = rules.visibleChoices(world, player);
+interface Option {
+  key: string;
+  text: string;
+  hint?: string;
+  dim?: boolean;
+  pick(): void;
+}
+
+/**
+ * Scènes et conversations se lisent comme un fil continu : ce qui a été dit reste
+ * au-dessus, les réponses possibles viennent en dessous, numérotées.
+ */
+export function Conversation() {
+  const { player, choose, ask, closeTalk } = useGame();
+  const end = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'end' });
+  }, [player.log.length]);
+
+  let options: Option[];
+  if (player.dialogue) {
+    options = rules.visibleChoices(world, player).map((c) => ({ key: `c${c.index}`, text: c.text, pick: () => choose(c.index) }));
+    if (!options.length) options = [{ key: 'end', text: 'Poursuivre', pick: () => choose(-1) }];
+  } else {
+    const person = player.talk!.person;
+    options = rules.knownLore(world, player).map((t) => ({
+      key: t.id,
+      text: t.title,
+      hint: t.contradiction ? 'ce que vous avez vu ne s’accorde pas' : undefined,
+      dim: player.asked.includes(`${person}/${t.id}${t.contradiction ? '!' : ''}`),
+      pick: () => ask(t.id),
+    }));
+    options.push({ key: 'bye', text: 'Prendre congé', pick: closeTalk });
+  }
+
+  const firstText = player.log.findIndex((e) => e.k === 'text');
   return (
-    <section className="page dialogue">
-      <div className="scroll" key={d.node}>
-        {node.speaker && <h3>{node.speaker}</h3>}
-        <Prose text={node.text} className="said" />
-      </div>
-      <div className="choices">
-        {choices.map((c) => (
-          <button key={c.index} onClick={() => choose(c.index)}>
-            {c.text}
-          </button>
-        ))}
-        {choices.length === 0 && (
-          <button className="primary" onClick={() => choose(-1)}>
-            Poursuivre
-          </button>
-        )}
+    <section className="talk">
+      <div className="thread">
+        {player.log.map((e, i) => {
+          const last = i === player.log.length - 1;
+          if (e.k === 'title')
+            return (
+              <h2 key={i} className="rubric">
+                {e.text}
+              </h2>
+            );
+          if (e.k === 'notice')
+            return (
+              <p key={i} className="notice">
+                {e.text}
+              </p>
+            );
+          if (e.k === 'you')
+            return (
+              <p key={i} className="you">
+                <span className="who">Vous</span> {e.text}
+              </p>
+            );
+          return (
+            <div key={i} className={`line ${last ? 'fresh' : ''} ${i === firstText && !e.speaker ? 'opening' : ''}`}>
+              {e.text.split('\n\n').map((para, j) => (
+                <p key={j}>
+                  {j === 0 && e.speaker && <span className="who">{e.speaker}</span>} {para}
+                </p>
+              ))}
+            </div>
+          );
+        })}
+        <ol className="replies">
+          {options.map((o) => (
+            <li key={o.key}>
+              <button className={o.dim ? 'dim' : ''} onClick={o.pick}>
+                {o.text}
+                {o.hint && <em> — {o.hint}</em>}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div ref={end} />
       </div>
     </section>
   );
@@ -48,74 +105,21 @@ export function NewsView() {
   const { player, dismissNews } = useGame();
   const event = world.events.find((e) => e.id === player.news[0])!;
   return (
-    <section className="page dialogue">
-      <div className="scroll" key={event.id}>
-        {event.title && <h3>{event.title}</h3>}
-        <Prose text={event.text} className="said" />
-      </div>
-      <div className="choices">
-        <button className="primary" onClick={dismissNews}>
-          Poursuivre
-        </button>
+    <section className="talk">
+      <div className="thread" key={event.id}>
+        {event.title && <h2 className="rubric">{event.title}</h2>}
+        <div className="line fresh opening">
+          <Prose text={event.text} />
+        </div>
+        <ol className="replies">
+          <li>
+            <button onClick={dismissNews}>Poursuivre</button>
+          </li>
+        </ol>
       </div>
     </section>
   );
 }
-
-export function TalkView() {
-  const { player, ask, backToTopics, closeTalk } = useGame();
-  const talk = player.talk!;
-  const person = world.people[talk.person];
-  const topics = rules.knownLore(world, player);
-
-  if (talk.reply !== undefined) {
-    const topic = topics.find((t) => t.id === talk.topic);
-    return (
-      <section className="page dialogue">
-        <div className="scroll" key={talk.topic}>
-          <h3>{person.name}</h3>
-          {topic && <small className="region">À propos de : {topic.title}</small>}
-          <Prose text={talk.reply} className="said" />
-        </div>
-        <div className="choices">
-          <button className="primary" onClick={backToTopics}>
-            Aborder autre chose
-          </button>
-          <button onClick={closeTalk}>Prendre congé</button>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="page">
-      <div className="scroll">
-        <h2>{person.name}</h2>
-        <Prose text={person.intro} />
-        <small className="region">Aborder un sujet</small>
-        <div className="topics">
-          {topics.map((t) => {
-            const asked = player.asked.some((k) => k === `${person.id}/${t.id}` || k === `${person.id}/${t.id}!`);
-            const fresh = t.contradiction && !player.asked.includes(`${person.id}/${t.id}!`);
-            return (
-              <button key={t.id} className={asked && !fresh ? 'asked' : ''} onClick={() => ask(t.id)}>
-                {t.title}
-                {t.contradiction && <em> · ce que vous avez vu ne s'accorde pas</em>}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-      <div className="choices">
-        <button className="primary" onClick={closeTalk}>
-          Prendre congé
-        </button>
-      </div>
-    </section>
-  );
-}
-
-const TAGS: Record<ReportTag, string> = { vrai: 'Vrai', faux: 'Faux', omis: 'Passé sous silence' };
 
 export function ReportView() {
   const { player, submitReport } = useGame();
@@ -126,10 +130,11 @@ export function ReportView() {
   const complete = options.every((opts, i) => !opts.length || picks[i] >= 0);
 
   return (
-    <section className="page report">
-      <div className="scroll">
-        <small className="region">{rules.dateLabel(world, player.day)}</small>
+    <section className="book report">
+      <div className="leaf">
+        <small className="eyebrow">{rules.dateLabel(world, player.day)}</small>
         <h2>{report.title}</h2>
+        <hr className="rule" />
         <Prose text={report.intro} />
         {report.points.map((pt, i) =>
           options[i].length ? (
@@ -148,9 +153,7 @@ export function ReportView() {
             </fieldset>
           ) : null,
         )}
-      </div>
-      <div className="choices">
-        <button className="primary" disabled={!complete} onClick={() => submitReport(picks)}>
+        <button className="seal wide" disabled={!complete} onClick={() => submitReport(picks)}>
           Signer et remettre le rapport
         </button>
       </div>
@@ -158,89 +161,42 @@ export function ReportView() {
   );
 }
 
-export function Journal() {
-  const { player } = useGame();
-  const quests = Object.entries(player.quests);
-  const reports = Object.entries(player.reports);
+/** Une note du joueur : on l'écrit ici, on la déplace en la faisant glisser sur la carte. */
+export function NoteEditor({ id, onClose }: { id: string; onClose(): void }) {
+  const { player, updateNote, deleteNote } = useGame();
+  const note = player.notes.find((n) => n.id === id)!;
+  const close = () => {
+    if (!note.text.trim()) deleteNote(id);
+    onClose();
+  };
   return (
-    <section className="page">
-      <div className="scroll">
-        <h2>Journal</h2>
-        {quests.length === 0 && <p className="muted">Rien encore qui mérite d'être écrit.</p>}
-        {quests.map(([id, q]) => {
-          const quest = world.quests[id];
-          return (
-            <article key={id} className={q.done ? 'done' : ''}>
-              <h3>{quest.title}</h3>
-              <Prose text={q.done ? (quest.epilogue ?? quest.stages[q.stage]) : quest.stages[q.stage]} />
-            </article>
-          );
-        })}
-
-        {reports.length > 0 && <h2 className="section">Rapports remis</h2>}
-        {reports.map(([id, r]) => {
-          const report = world.reports[id];
-          return (
-            <article key={id}>
-              <h3>{report.title}</h3>
-              <small className="region">{rules.dateLabel(world, r.day)}</small>
-              {report.points.map((pt, i) => {
-                const o = pt.options[r.picks[i]];
-                return o ? (
-                  <p key={i} className="written">
-                    <b>{pt.title}.</b> {o.text} <span className={`tag ${o.tag}`}>{TAGS[o.tag]}</span>
-                  </p>
-                ) : null;
-              })}
-            </article>
-          );
-        })}
+    <div className="scrim" onClick={close}>
+      <div className="slip" onClick={(e) => e.stopPropagation()}>
+        <small className="eyebrow">Note — {world.maps[note.map]?.name}</small>
+        <textarea
+          id="note-text"
+          autoFocus
+          rows={5}
+          value={note.text}
+          placeholder="Ce que vous voulez retenir…"
+          onChange={(e) => updateNote(id, { text: e.target.value })}
+        />
+        <p className="muted">Faites glisser l'étiquette sur la carte pour la placer.</p>
+        <div className="actions">
+          <button className="seal" onClick={close}>
+            Garder
+          </button>
+          <button
+            className="ghost"
+            onClick={() => {
+              deleteNote(id);
+              onClose();
+            }}
+          >
+            Jeter
+          </button>
+        </div>
       </div>
-    </section>
-  );
-}
-
-export function Knowledge() {
-  const { player } = useGame();
-  return (
-    <section className="page">
-      <div className="scroll">
-        <h2>Savoir</h2>
-        {rules.knownLore(world, player).map((l) => (
-          <article key={l.id}>
-            <h3>{l.title}</h3>
-            {l.contradiction && <p className="clash">Ces versions ne s'accordent pas.</p>}
-            {l.versions.map((v, i) => (
-              <div key={i} className="version">
-                <small className="region">{v.source}</small>
-                <Prose text={v.text} />
-              </div>
-            ))}
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export function Bag() {
-  const { player } = useGame();
-  const entries = Object.entries(player.inventory);
-  return (
-    <section className="page">
-      <div className="scroll">
-        <h2>Sac</h2>
-        {entries.length === 0 && <p className="muted">Vous voyagez les mains vides.</p>}
-        {entries.map(([id, n]) => (
-          <article key={id}>
-            <h3>
-              {world.items[id].name}
-              {n > 1 && ` ×${n}`}
-            </h3>
-            <Prose text={world.items[id].description} />
-          </article>
-        ))}
-      </div>
-    </section>
+    </div>
   );
 }

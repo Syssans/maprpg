@@ -197,6 +197,21 @@ export interface World {
   layers: Record<string, Layer>;
 }
 
+export interface LogEntry {
+  /** text : ce qu'on lit ou entend · you : ce que le joueur a choisi · notice : conséquence · title : en-tête */
+  k: 'text' | 'you' | 'notice' | 'title';
+  speaker?: string;
+  text: string;
+}
+
+export interface Note {
+  id: string;
+  map: string;
+  x: number;
+  y: number;
+  text: string;
+}
+
 /** État d'un joueur : sérialisable, donc sauvegardable, exportable, synchronisable. */
 export interface PlayerState {
   mapId: string;
@@ -214,8 +229,12 @@ export interface PlayerState {
   /** Ce que l'Inquisition a noté. Le joueur n'en voit que le poids. */
   dossier: { word: string; note?: string; day: number }[];
   uniform: boolean;
-  /** Conversation en cours avec une personne ; `reply` est sa dernière réponse. */
-  talk: { person: string; topic?: string; reply?: string } | null;
+  /** Conversation en cours avec une personne. */
+  talk: { person: string } | null;
+  /** Fil de la scène ou de la conversation en cours : tout ce qui s'y est dit, dans l'ordre. */
+  log: LogEntry[];
+  /** Notes du joueur, épinglées sur les cartes. */
+  notes: Note[];
   /** Clés « personne/sujet » déjà abordées. */
   asked: string[];
   reports: Record<string, { day: number; picks: number[] }>;

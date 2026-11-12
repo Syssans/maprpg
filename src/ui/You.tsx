@@ -33,10 +33,10 @@ export function You({ author }: { author: boolean }) {
   };
 
   return (
-    <section className="page">
-      <div className="scroll">
-        <small className="region">Originaire de {world.game.origin}</small>
+    <>
+        <small className="eyebrow">Originaire de {world.game.origin}</small>
         <h2>{world.game.title}</h2>
+        <hr className="rule" />
         <p>{rules.dateLabel(world, player.day)}.</p>
 
         <article>
@@ -46,7 +46,7 @@ export function You({ author }: { author: boolean }) {
               ? "Vous portez l'uniforme de l'Inquisition. On vous parle comme à un officier."
               : "Vous avez ôté l'uniforme. On vous parle comme à n'importe qui."}
           </p>
-          <button className="plain" onClick={toggleUniform}>
+          <button className="ghost" onClick={toggleUniform}>
             {player.uniform ? "Ôter l'uniforme" : "Remettre l'uniforme"}
           </button>
         </article>
@@ -60,10 +60,10 @@ export function You({ author }: { author: boolean }) {
           <h3>Sauvegarde</h3>
           <p className="muted">La partie s'enregistre seule sur cet appareil. Un fichier permet de la garder ou de la déplacer.</p>
           <div className="actions">
-            <button className="plain" onClick={exportSave}>
+            <button className="ghost" onClick={exportSave}>
               Enregistrer dans un fichier
             </button>
-            <button className="plain" onClick={() => file.current?.click()}>
+            <button className="ghost" onClick={() => file.current?.click()}>
               Charger un fichier
             </button>
             <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => importSave(e.target.files?.[0])} />
@@ -72,7 +72,7 @@ export function You({ author }: { author: boolean }) {
           {confirming ? (
             <div className="actions">
               <button
-                className="plain"
+                className="ghost"
                 onClick={() => {
                   reset();
                   setConfirming(false);
@@ -80,7 +80,7 @@ export function You({ author }: { author: boolean }) {
               >
                 Oui, effacer la partie
               </button>
-              <button className="plain" onClick={() => setConfirming(false)}>
+              <button className="ghost" onClick={() => setConfirming(false)}>
                 Annuler
               </button>
             </div>
@@ -92,8 +92,7 @@ export function You({ author }: { author: boolean }) {
         </article>
 
         {author && <Author />}
-      </div>
-    </section>
+    </>
   );
 }
 
@@ -189,7 +188,7 @@ function Author() {
         </label>
       ))}
 
-      <small className="region">Faits</small>
+      <small className="eyebrow">Faits</small>
       <div className="flags">
         {allFlags(world).map((f) => (
           <label key={f}>
@@ -205,7 +204,7 @@ function Author() {
         ))}
       </div>
 
-      <small className="region">Dossier tenu par l'Inquisition ({player.dossier.length})</small>
+      <small className="eyebrow">Dossier tenu par l'Inquisition ({player.dossier.length})</small>
       {player.dossier.map((d, i) => (
         <p key={i} className="problem">
           <b>{d.word}</b> · jour {d.day}
@@ -217,7 +216,7 @@ function Author() {
           )}
         </p>
       ))}
-      <button className="plain" onClick={() => set({ fired: [], news: [] })}>
+      <button className="ghost" onClick={() => set({ fired: [], news: [] })}>
         Rejouer les événements
       </button>
     </article>

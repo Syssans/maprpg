@@ -46,6 +46,9 @@ npm run dev
 - **Rapports** : après une opération, le joueur choisit ce qu'il déclare ; le journal garde l'écart.
 - **Dossier** : l'Inquisition note ce que fait le joueur, qui n'en devine que le poids. L'uniforme se porte ou s'ôte.
 - **Carte annotée** : notes du personnage sur les lieux, calques colorés (par exemple les châtiments).
+- **Carnet** : le joueur écrit ses propres notes et les épingle sur la carte en les faisant glisser.
+- **Codex** : journal, savoir, besace, carnet et personnage réunis en un livre à signets.
+- **Fil des scènes** : ce qui s'est dit reste lisible au-dessus des réponses possibles.
 - **Socle** : sauvegarde automatique, export et import en fichier, reprise des anciennes sauvegardes, jeu hors connexion.
 - **Mode auteur** (onglet Vous, en développement ou avec `?auteur`) : aller partout, ouvrir tout passage, régler le jour et les faits.
 

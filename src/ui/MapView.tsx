@@ -1,7 +1,12 @@
 import L from 'leaflet';
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { asset } from '../content';
-import type { MapDef } from '../engine/types';
+import type { MapDef, Note } from '../engine/types';
+
+export interface MapHandle {
+  /** Point de la carte au milieu de la partie visible, en coordonnées de l'image. */
+  center(): { x: number; y: number };
+}
 
 interface Props {
   map: MapDef;
@@ -15,15 +20,37 @@ interface Props {
   noted: Set<string>;
   /** Hauteur du panneau qui recouvre le bas de la carte, tenue à jour par l'appelant. */
   inset: { current: number };
+  notes: Note[];
+  onMoveNote(id: string, x: number, y: number): void;
+  onOpenNote(id: string): void;
   onSelect(placeId: string | null): void;
 }
 
-export function MapView({ map, known, current, reachable, selected, tint, noted, inset, onSelect }: Props) {
+export const MapView = forwardRef<MapHandle, Props>(function MapView(
+  { map, known, current, reachable, selected, tint, noted, inset, notes, onMoveNote, onOpenNote, onSelect },
+  handle,
+) {
   const el = useRef<HTMLDivElement>(null);
   const leaflet = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
+  const pins = useRef<L.LayerGroup | null>(null);
   const select = useRef(onSelect);
   select.current = onSelect;
+  const note = useRef({ onMoveNote, onOpenNote });
+  note.current = { onMoveNote, onOpenNote };
+
+  useImperativeHandle(handle, () => ({
+    center() {
+      const m = leaflet.current;
+      if (!m) return { x: map.width / 2, y: map.height / 2 };
+      const size = m.getSize();
+      const c = m.containerPointToLatLng([size.x / 2, (size.y - inset.current) / 2]);
+      return {
+        x: Math.round(Math.min(map.width, Math.max(0, c.lng))),
+        y: Math.round(Math.min(map.height, Math.max(0, map.height - c.lat))),
+      };
+    },
+  }));
 
   // Leaflet compte les ordonnées vers le haut, les images vers le bas.
   const at = (x: number, y: number): L.LatLngTuple => [map.height - y, x];
@@ -62,6 +89,7 @@ export function MapView({ map, known, current, reachable, selected, tint, noted,
     focus(false);
     m.on('click', () => select.current(null));
     layer.current = L.layerGroup().addTo(m);
+    pins.current = L.layerGroup().addTo(m);
     return () => {
       m.remove();
       leaflet.current = null;
@@ -113,10 +141,42 @@ export function MapView({ map, known, current, reachable, selected, tint, noted,
     }
   }, [map, known, current, reachable, selected, tint, noted]);
 
+  // Notes du joueur : des étiquettes que l'on déplace en les faisant glisser.
+  useEffect(() => {
+    const group = pins.current;
+    if (!group) return;
+    group.clearLayers();
+    for (const n of notes) {
+      if (n.map !== map.id) continue;
+      const tag = document.createElement('div');
+      tag.className = 'pin';
+      tag.textContent = n.text.trim() ? n.text.trim().slice(0, 28) + (n.text.trim().length > 28 ? '…' : '') : 'Note';
+      L.marker(at(n.x, n.y), {
+        icon: L.divIcon({ className: '', iconSize: [0, 0], html: tag.outerHTML }),
+        draggable: true,
+        zIndexOffset: 1000,
+      })
+        .on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          note.current.onOpenNote(n.id);
+        })
+        .on('dragend', (e) => {
+          const p = (e.target as L.Marker).getLatLng();
+          note.current.onMoveNote(
+            n.id,
+            Math.round(Math.min(map.width, Math.max(0, p.lng))),
+            Math.round(Math.min(map.height, Math.max(0, map.height - p.lat))),
+          );
+        })
+        .addTo(group);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes, map.id]);
+
   useEffect(() => {
     focus(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
   return <div ref={el} className="map" />;
-}
+});
