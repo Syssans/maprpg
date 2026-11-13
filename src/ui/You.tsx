@@ -5,8 +5,8 @@ import { useGame } from '../engine/store';
 import { allFlags } from '../engine/validate';
 
 /** Le personnage, sa sauvegarde et, pour l'auteur, les outils d'essai. */
-export function You({ author }: { author: boolean }) {
-  const { player, toggleUniform, reset, load } = useGame();
+export function You({ onAtelier }: { onAtelier(): void }) {
+  const { player, toggleUniform, reset, load, author, setAuthor } = useGame();
   const file = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
   const [confirming, setConfirming] = useState(false);
@@ -89,6 +89,21 @@ export function You({ author }: { author: boolean }) {
               Recommencer depuis le début
             </button>
           )}
+        </article>
+
+        <article>
+          <h3>Écrire le jeu</h3>
+          <p className="muted">Les outils d'auteur : l'atelier d'écriture, et de quoi se placer n'importe où dans l'histoire.</p>
+          <div className="actions">
+            <button className="ghost" onClick={() => setAuthor(!author)}>
+              {author ? 'Quitter le mode auteur' : 'Passer en mode auteur'}
+            </button>
+            {author && (
+              <button className="seal" onClick={onAtelier}>
+                Ouvrir l'atelier
+              </button>
+            )}
+          </div>
         </article>
 
         {author && <Author />}
@@ -232,6 +247,10 @@ function Author() {
           )}
         </p>
       ))}
+      <label>
+        Points de talent
+        <input type="number" min={0} value={player.points} onChange={(e) => set({ points: Math.max(0, +e.target.value || 0) })} />
+      </label>
       <button className="ghost" onClick={() => set({ fired: [], news: [] })}>
         Rejouer les événements
       </button>

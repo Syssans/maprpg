@@ -27,6 +27,21 @@ Au bureau, votre premier ordre de mission vous attend, plié en quatre. Une dén
 --- rue
 La rue s'est vidée à votre approche, puis remplie de nouveau, à distance. On vous regarde faire. C'est la première fois qu'on vous regarde ainsi.
 > Faire venir celle qui a dénoncé. -> voisine
+// EXEMPLE de jet : deux dés + Vigilance contre 9. Réussite -> margelle, échec -> eau.
+// Le bonus ne s'applique que si sa condition est remplie.
+> Examiner d'abord le puits. [jet vigilance 9] -> margelle / eau
+  bonus +2 [si sans uniforme] : Sans l'uniforme, personne ne s'écarte : vous prenez votre temps.
+> Frapper chez l'Elfe. -> elfe
+
+--- margelle
+La margelle est verte jusqu'au ras de l'eau, d'un vert épais, ancien. Ce n'est pas l'ouvrage d'une saison. Ce puits est gâté depuis bien avant que quiconque ait songé à s'en plaindre.
++ fait puits_su
+> Faire venir celle qui a dénoncé. -> voisine
+> Frapper chez l'Elfe. -> elfe
+
+--- eau
+Vous vous penchez. L'eau est noire et ne vous apprend rien, sinon que la rue entière vous regarde vous pencher.
+> Faire venir celle qui a dénoncé. -> voisine
 > Frapper chez l'Elfe. -> elfe
 
 --- voisine
@@ -38,6 +53,8 @@ L'eau a tourné, Inquisiteur. Elle sent la vase. Et lui, il en boit sans faire l
 --- depuis
 @ La voisine
 Oh, des années. Ma mère s'en plaignait déjà. Lui ? Il est arrivé l'an passé. Elle s'arrête, compte, hausse les épaules. Et qu'est-ce que ça change ? C'en est un.
+// EXEMPLE de remarque passive : elle n'apparaît que si le Doute du joueur atteint 2.
+~ doute 2 : Elle a compté. Elle sait que les dates ne tombent pas juste, et cela ne la trouble pas.
 + fait puits_su
 > Frapper chez l'Elfe. -> elfe
 
@@ -47,11 +64,13 @@ Il ouvre avant le second coup. Il a déjà son manteau sur les épaules. « C'es
   + fait elfe_arrete
   + quête operation = arrete
   + quête operation close
+  + points 1
   + rapport rue-basse
 > Repartir sans lui, et consigner que la dénonciation ne tient pas. -> classe [si fait puits_su]
   + fait elfe_epargne
   + quête operation = classe
   + quête operation close
+  + points 1
   + rapport rue-basse
 
 --- arrete

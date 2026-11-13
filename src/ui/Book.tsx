@@ -5,22 +5,19 @@ import { useGame } from '../engine/store';
 import type { PlayerState, ReportTag } from '../engine/types';
 import { IconClose } from './icons';
 import { Prose } from './pages';
+import { Atelier } from './Atelier';
 import { You } from './You';
 
-export type BookTab = 'quetes' | 'savoir' | 'besace' | 'carnet' | 'vous';
-export const TABS: [BookTab, string][] = [
-  ['quetes', 'Quêtes'],
-  ['savoir', 'Savoir'],
-  ['besace', 'Besace'],
-  ['carnet', 'Carnet'],
-  ['vous', 'Vous'],
-];
+export type BookTab = 'quetes' | 'savoir' | 'talents' | 'besace' | 'carnet' | 'vous' | 'atelier';
 
 /** Empreinte de ce qu'une page contient : si elle change, la page a du nouveau. */
 export function signature(tab: BookTab, player: PlayerState): string {
-  if (tab === 'quetes')
-    return JSON.stringify([Object.entries(player.quests).map(([id, q]) => [id, q.stage, q.done]), Object.keys(player.reports)]);
+  if (tab === 'quetes') {
+    const quests = Object.entries(player.quests).map(([id, q]) => `${id}:${q.stage}:${q.done}`);
+    return [...quests, ...Object.keys(player.reports)].join(',');
+  }
   if (tab === 'savoir') return rules.knownLore(world, player).map((l) => `${l.id}:${l.versions.length}`).join(',');
+  if (tab === 'talents') return player.points > 0 ? `points:${player.points}` : '';
   if (tab === 'besace') return Object.keys(player.inventory).join(',');
   return '';
 }
@@ -30,36 +27,81 @@ interface Props {
   onTab(tab: BookTab): void;
   onClose(): void;
   onOpenNote(id: string): void;
-  author: boolean;
 }
 
-/** Le codex : tout ce que le personnage porte sur lui, en un seul livre à signets. */
-export function Book({ tab, onTab, onClose, onOpenNote, author }: Props) {
+/** Une page du codex. Chaque bouton de la barre ouvre la sienne, et elle seule. */
+export function Page({ tab, onTab, onClose, onOpenNote }: Props) {
   const { player, markSeen } = useGame();
   const sig = signature(tab, player);
   useEffect(() => {
-    markSeen(tab, sig);
+    // Les points de talent restent signalés tant qu'il en reste à dépenser.
+    if (tab !== 'talents') markSeen(tab, sig);
   }, [tab, sig, markSeen]);
   return (
     <section className="book">
-      <nav className="ribbons">
-        {TABS.map(([id, label]) => (
-          <button key={id} className={tab === id ? 'on' : ''} onClick={() => onTab(id)}>
-            {label}
-          </button>
-        ))}
-        <button className="close" onClick={onClose} aria-label="Refermer le codex">
-          <IconClose />
-        </button>
-      </nav>
+      <button className="close" onClick={onClose} aria-label="Fermer">
+        <IconClose />
+      </button>
       <div className="leaf" key={tab}>
         {tab === 'quetes' && <Journal />}
         {tab === 'savoir' && <Knowledge />}
+        {tab === 'talents' && <Skills />}
         {tab === 'besace' && <Bag />}
         {tab === 'carnet' && <Notebook onOpenNote={onOpenNote} />}
-        {tab === 'vous' && <You author={author} />}
+        {tab === 'vous' && <You onAtelier={() => onTab('atelier')} />}
+        {tab === 'atelier' && <Atelier onBack={() => onTab('vous')} />}
       </div>
     </section>
+  );
+}
+
+/** Les talents, rangés par famille. Un point se dépense d'un geste et ne se reprend pas. */
+function Skills() {
+  const { player, spendPoint } = useGame();
+  const groups = [...new Set(world.skills.map((k) => k.group))];
+  return (
+    <>
+      <h2>Talents</h2>
+      <Rule />
+      <p className={player.points > 0 ? 'points' : 'muted'}>
+        {player.points > 1
+          ? `${player.points} points à répartir.`
+          : player.points === 1
+            ? 'Un point à répartir.'
+            : 'Aucun point à répartir pour l’instant.'}
+      </p>
+      {groups.map((g) => (
+        <div key={g} className="branch">
+          <h3>{g}</h3>
+          {world.skills
+            .filter((k) => k.group === g)
+            .map((k) => {
+              const level = rules.skillLevel(player, k.id);
+              return (
+                <div key={k.id} className="skill">
+                  <div className="skill-head">
+                    <b>{k.name}</b>
+                    <span className="pips" aria-label={`Niveau ${level} sur ${rules.SKILL_MAX}`}>
+                      {Array.from({ length: rules.SKILL_MAX }, (_, i) => (
+                        <i key={i} className={i < level ? 'on' : ''} />
+                      ))}
+                    </span>
+                    <button
+                      className="raise"
+                      disabled={player.points < 1 || level >= rules.SKILL_MAX}
+                      onClick={() => spendPoint(k.id)}
+                      aria-label={`Augmenter ${k.name}`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <Prose text={k.description} />
+                </div>
+              );
+            })}
+        </div>
+      ))}
+    </>
   );
 }
 

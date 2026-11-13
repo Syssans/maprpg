@@ -12,6 +12,7 @@ import type {
   ReportTag,
   Route,
   Src,
+  Test,
   World,
 } from './types';
 
@@ -106,6 +107,8 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
         clause = { k: 'since', id: m[1], op: m[2] as Op, n: +m[3] };
       else if ((m = /^dossier (?:(\S+) )?(>=|<=|>|<|=) (\d+)$/.exec(c)))
         clause = { k: 'dossier', word: m[1], op: m[2] as Op, n: +m[3] };
+      else if ((m = /^competence (\S+) (>=|<=|>|<|=) (\d+)$/.exec(c)))
+        clause = { k: 'skill', id: m[1], op: m[2] as Op, n: +m[3] };
       else if ((m = /^(visite|ici) (\S+)$/.exec(c)))
         clause = { k: m[1] === 'ici' ? 'here' : 'visited', place: m[2] };
       if (clause) out.push(clause);
@@ -142,6 +145,8 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
     if ((m = /^va (\S+)$/.exec(n))) return { k: 'goto', place: m[1] };
     if ((m = /^scene (\S+)$/.exec(n))) return { k: 'scene', id: m[1] };
     if ((m = /^savoir (\S+)$/.exec(n))) return { k: 'learn', id: m[1] };
+    if ((m = /^points? (\d+)$/.exec(n))) return { k: 'points', n: +m[1] };
+    if ((m = /^competence (\S+) (\d+)$/.exec(n))) return { k: 'skill', id: m[1], n: +m[2] };
     err(src, `Effet incompris : « ${s} ».`);
     return null;
   }
@@ -186,6 +191,7 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
     dayOfYear: 1,
     yearLength: 225,
     moons: 1,
+    startPoints: 0,
   };
   const world: World = {
     game,
@@ -197,6 +203,7 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
     people: {},
     reports: {},
     events: [],
+    skills: [],
   };
   const places: { map: string; place: Place; routes: { to: string; days: number; src: Src }[] }[] = [];
   const seen = new Set<string>();
@@ -235,6 +242,7 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
           else if (kv[0] === 'jour') game.dayOfYear = +kv[1];
           else if (kv[0] === 'jours par an') game.yearLength = +kv[1];
           else if (kv[0] === 'lunes') game.moons = +kv[1];
+          else if (kv[0] === 'points de depart') game.startPoints = +kv[1];
           else err(at(l), `Réglage inconnu : « ${kv[0]} ».`);
         }
         break;
@@ -407,7 +415,7 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
             close();
             const id = ident(m[1]);
             if (scene.nodes[id]) err(at(l), `Le passage « ${id} » existe déjà dans cette scène.`);
-            node = { id, text: '', effects: [], choices: [], src: at(l), prose: new Prose() };
+            node = { id, text: '', passives: [], effects: [], choices: [], src: at(l), prose: new Prose() };
             scene.nodes[id] = node;
             order.push(id);
           } else if (!node) {
@@ -415,12 +423,31 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
               scene.starts.push({ node: ident(m[1]), if: takeCond(l.s, at(l)).cond, src: at(l) });
             else if (l.s) err(at(l), 'Avant le premier passage « --- nom », seules les lignes « début … » sont admises.');
           } else if (l.s.startsWith('@')) node.speaker = l.s.slice(1).trim();
-          else if (l.s.startsWith('>')) {
-            const { rest, cond } = takeCond(l.s.slice(1), at(l));
+          else if ((m = /^~\s*(\S+)\s+(\d+)\s*:\s*(.*)$/.exec(l.s)))
+            node.passives.push({ skill: ident(m[1]), level: +m[2], text: m[3].trim(), src: at(l) });
+          else if ((m = /^(bonus|malus)\s*([+-]?\d+)\s*(\[[^\]]*\])?\s*:\s*(.*)$/i.exec(l.s))) {
+            const test = node.choices[node.choices.length - 1]?.test;
+            const value = Math.abs(+m[2]) * (norm(m[1]) === 'malus' ? -1 : 1);
+            if (test) test.mods.push({ value, if: m[3] ? takeCond(m[3], at(l)).cond : [], text: m[4].trim(), src: at(l) });
+            else err(at(l), 'Un bonus ou un malus doit suivre un choix qui porte un jet « [jet talent difficulté] ».');
+          } else if (l.s.startsWith('>')) {
+            // « > Texte [jet doute 10] -> reussite / echec [si …] »
+            let line = l.s.slice(1);
+            let test: Test | undefined;
+            const jet = /\[\s*jet\s+(\S+)\s+(\d+)(\s+sans\s+retour)?\s*\]/i.exec(line);
+            if (jet) {
+              test = { skill: ident(jet[1]), difficulty: +jet[2], once: !!jet[3], mods: [] };
+              line = line.slice(0, jet.index) + line.slice(jet.index + jet[0].length);
+            }
+            const { rest, cond } = takeCond(line, at(l));
             const arrow = rest.lastIndexOf('->');
+            const targets = arrow >= 0 ? rest.slice(arrow + 2).split('/').map((t) => ident(t)) : [];
+            if (test) test.fail = targets[1];
+            else if (targets.length > 1) err(at(l), 'Deux passages séparés par « / » ne valent que pour un jet : « [jet talent difficulté] ».');
             node.choices.push({
-              text: (arrow >= 0 ? rest.slice(0, arrow) : rest).trim(),
-              next: arrow >= 0 ? ident(rest.slice(arrow + 2)) : undefined,
+              text: (arrow >= 0 ? rest.slice(0, arrow) : rest).replace(/\s+/g, ' ').trim(),
+              next: targets[0] || undefined,
+              test,
               if: cond,
               effects: [],
               src: at(l),
@@ -498,6 +525,18 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
           else if (l.s) err(at(l), `Ligne incomprise dans le rapport : « ${l.s} ».`);
         }
         world.reports[b.id] = { id: b.id, title: b.title || 'Rapport', intro: intro.text, points, src: b.src };
+        break;
+      }
+
+      case 'competence': {
+        if (!needId()) break;
+        const prose = new Prose();
+        let group = '';
+        for (const l of b.lines) {
+          if (/^groupe\s*:/i.test(l.s)) group = l.s.slice(l.s.indexOf(':') + 1).trim();
+          else prose.add(l.s);
+        }
+        world.skills.push({ id: b.id, name: b.title || b.id, group, description: prose.text, src: b.src });
         break;
       }
 

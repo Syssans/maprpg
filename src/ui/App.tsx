@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { authorMode, world } from '../content';
+import { world } from '../content';
 import * as rules from '../engine/rules';
 import { useGame } from '../engine/store';
-import { Book, signature, type BookTab } from './Book';
-import { IconBag, IconBook, IconFold, IconQuest, IconQuill, IconSeal } from './icons';
+import { Page, signature, type BookTab } from './Book';
+import { IconBag, IconBook, IconFold, IconQuest, IconQuill, IconSeal, IconTree } from './icons';
 import { MapView, type MapHandle } from './MapView';
 import { Conversation, NewsView, NoteEditor, ReportView } from './pages';
 
@@ -36,7 +36,7 @@ export function App() {
   const hud = useRef<HTMLDivElement>(null);
   const inset = useRef(0);
   useLayoutEffect(() => {
-    inset.current = hud.current?.offsetHeight ?? 0;
+    inset.current = (hud.current?.offsetHeight ?? 0) + 76;
   });
 
   useEffect(() => {
@@ -57,12 +57,13 @@ export function App() {
   const dock: [BookTab, string, ReactNode][] = [
     ['quetes', 'Quêtes', <IconQuest />],
     ['savoir', 'Savoir', <IconBook />],
+    ['talents', 'Talents', <IconTree />],
     ['besace', 'Besace', <IconBag />],
     ['carnet', 'Carnet', <IconQuill />],
   ];
   const fresh = (tab: BookTab) => {
     const sig = signature(tab, player);
-    return sig !== '' && sig !== '[[],[]]' && game.seen[tab] !== sig;
+    return sig !== '' && game.seen[tab] !== sig;
   };
 
   // Ce qui doit être lu ou réglé avant de reprendre la main, par ordre de priorité.
@@ -178,31 +179,38 @@ export function App() {
             )}
           </section>
 
-          <nav className="dock">
-            {dock.map(([id, label, icon]) => (
-              <button key={id} onClick={() => setBook(id)}>
-                {icon}
-                <span>{label}</span>
-                {fresh(id) && <i aria-label="Du nouveau" />}
-              </button>
-            ))}
-          </nav>
         </div>
       )}
 
       {overlay}
       {book && !overlay && (
-        <Book
+        <Page
           tab={book}
           onTab={setBook}
           onClose={() => setBook(null)}
-          author={authorMode}
           onOpenNote={(id) => {
             setBook(null);
             setEditing(id);
           }}
         />
       )}
+      {!overlay && (
+        <nav className="dock">
+          {dock.map(([id, label, icon]) => (
+            <button
+              key={id}
+              className={book === id ? 'on' : ''}
+              aria-pressed={book === id}
+              onClick={() => setBook(book === id ? null : id)}
+            >
+              {icon}
+              <span>{label}</span>
+              {fresh(id) && <i aria-label="Du nouveau" />}
+            </button>
+          ))}
+        </nav>
+      )}
+
       {editing && player.notes.some((n) => n.id === editing) && (
         <NoteEditor id={editing} onClose={() => setEditing(null)} />
       )}

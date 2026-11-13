@@ -14,10 +14,17 @@ Le vérificateur relit tout et signale, avec le fichier et la ligne : un choix q
 mène nulle part, un passage inatteignable, un objet mal nommé, un lieu sans chemin…
 Une **erreur** empêche de publier le jeu ; un **avertissement** mérite un coup d'œil.
 
-Pour essayer en jouant, lancez `npm run dev`. L'onglet **Vous** contient alors un
-**mode auteur** : aller à n'importe quel lieu, ouvrir n'importe quel passage, changer
+Pour essayer en jouant, ouvrez la page du personnage (le sceau en haut à droite) et
+passez en **mode auteur** : aller à n'importe quel lieu, ouvrir n'importe quel passage, changer
 le jour, cocher des faits et des sujets du Savoir, voir le dossier que l'Inquisition tient sur le joueur.
-Sur le jeu publié, ajoutez `?auteur` ou `#auteur` à l'adresse.
+
+### L'atelier, pour écrire depuis le jeu
+
+En mode auteur, « Ouvrir l'atelier » donne un éditeur dans le jeu lui-même, utilisable
+sur téléphone. Des boutons y insèrent des modèles (quête, scène, choix, jet de dés,
+personne…), « Vérifier et essayer » relit le texte et le met aussitôt en jeu, et un
+aide-mémoire liste les noms existants. Ces documents restent sur l'appareil : pour les
+faire entrer dans le jeu de tous, copiez leur texte dans un fichier de ce dossier.
 
 ## Les règles communes
 
@@ -49,6 +56,7 @@ séparent par une virgule ou par « et » : elles doivent toutes être vraies.
 | `dossier >= 3` | l'Inquisition a noté au moins trois choses sur le joueur |
 | `dossier bavard >= 2` | dont au moins deux sous le mot « bavard » |
 | `en uniforme` / `sans uniforme` | le joueur porte l'uniforme / l'a ôté |
+| `compétence doute >= 3` | ce talent a atteint ce niveau |
 | `visité monde/assise` | il est déjà passé par ce lieu |
 | `ici monde/lastille` | il s'y trouve en ce moment |
 
@@ -68,6 +76,8 @@ Un effet est une ligne qui commence par `+`. Il change l'état de la partie.
 | `+ rapport rue-basse` | le joueur devra rédiger ce rapport dès la fin de la scène |
 | `+ va monde/assise` | transporte le joueur dans ce lieu |
 | `+ savoir elfes` | inscrit ce sujet au Savoir du joueur |
+| `+ points 1` | donne un point de talent à répartir |
+| `+ compétence doute 1` | augmente directement un talent |
 | `+ scène interrogatoire` | lance une autre scène (depuis un choix, une réponse ou un événement) |
 
 ## Les blocs
@@ -102,6 +112,48 @@ L'eau a tourné, Inquisiteur.
   Un passage sans aucun choix se termine par « Poursuivre ».
 - Un `+` placé **avant** les choix vaut dès qu'on arrive au passage ; placé
   **après** un choix, il ne vaut que si l'on prend ce choix.
+
+### Un jet de dés
+
+```
+> Examiner d'abord le puits. [jet vigilance 9] -> margelle / eau
+  bonus +2 [si sans uniforme] : Personne ne s'écarte : vous prenez votre temps.
+  + fait puits_su
+```
+
+- `[jet talent difficulté]` : le joueur lance deux dés, ajoute son talent, et doit
+  atteindre la difficulté. Double un rate toujours, double six réussit toujours.
+- `-> reussite / echec` : les deux passages où mène le jet.
+- Difficultés : 6 aisé · 8 ordinaire · 10 malaisé · 12 ardu · 14 redoutable · 16 presque impossible.
+  Le joueur voit sa chance en pourcentage avant de choisir.
+- `bonus +2 [si …] : raison` et `malus -1 [si …] : raison` modifient le jet.
+- Les effets `+` placés sous le choix ne valent qu'en cas de **réussite**.
+- Un jet raté se retente quand le talent a progressé. `[jet doute 10 sans retour]`
+  n'autorise qu'une tentative. Un jet réussi ne se relance plus.
+
+### Une remarque soufflée par un talent
+
+```
+--- depuis
+@ La voisine
+Lui ? Il est arrivé l'an passé.
+~ doute 2 : Elle sait que les dates ne tombent pas juste.
+```
+
+La ligne `~ talent niveau : texte` s'ajoute au passage, sans jet, si le talent du
+joueur atteint ce niveau.
+
+### Un talent
+
+```
+== COMPÉTENCE doute : Doute
+groupe : Le Regard
+Entendre ce qui ne s'accorde pas dans ce qu'on vous affirme.
+```
+
+Les talents commencent à 1 et montent jusqu'à 6. `groupe` les range par famille sur
+la page des talents. `points de départ : 3`, dans le bloc `== JEU`, fixe ce que le
+joueur répartit en commençant.
 
 ### Une quête
 

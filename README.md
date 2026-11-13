@@ -47,10 +47,12 @@ npm run dev
 - **Dossier** : l'Inquisition note ce que fait le joueur, qui n'en devine que le poids. L'uniforme se porte ou s'ôte.
 - **Carte annotée** : notes du personnage sur les lieux.
 - **Carnet** : le joueur écrit ses propres notes et les épingle sur la carte en les faisant glisser.
-- **Codex** : quêtes, savoir, besace, carnet et personnage réunis en un livre, ouvert depuis la barre du bas ; la quête en cours reste affichée sur la carte.
+- **Barre du bas** : Quêtes, Savoir, Talents, Besace, Carnet, chacun ouvrant sa propre page ; la quête en cours reste affichée sur la carte.
 - **Fil des scènes** : ce qui s'est dit reste lisible au-dessus des réponses possibles.
+- **Talents et jets de dés** : neuf talents en trois familles ; un choix peut demander un jet (deux dés + talent contre une difficulté), et un talent élevé souffle des remarques.
+- **Atelier** : en mode auteur, un éditeur dans le jeu pour écrire une quête, la vérifier et l'essayer aussitôt, y compris sur téléphone.
 - **Socle** : sauvegarde automatique, export et import en fichier, reprise des anciennes sauvegardes, jeu hors connexion.
-- **Mode auteur** (onglet Vous, en développement ou avec `?auteur`) : aller partout, ouvrir tout passage, régler le jour et les faits.
+- **Mode auteur** (page du personnage) : aller partout, ouvrir tout passage, régler le jour et les faits.
 
 ## État du contenu
 
@@ -59,6 +61,7 @@ npm run dev
 - **Chemins et durées** : hypothèse de travail, à corriger.
 - **Quêtes** (`content/quetes/`) : ébauches à réécrire.
 - **`content/exemples.txt`** : exemples de personne et d'événement, à supprimer ou réécrire.
+- **`content/talents.txt`** : proposition de talents, à renommer ou compléter.
 
 ## Organisation du code
 

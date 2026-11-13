@@ -32,6 +32,15 @@ export const IconBag = () => (
   </svg>
 );
 
+export const IconTree = () => (
+  <svg {...base} aria-hidden="true">
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="6" cy="18" r="2" />
+    <circle cx="18" cy="18" r="2" />
+    <path d="M12 7v4M12 11l-6 5M12 11l6 5" />
+  </svg>
+);
+
 export const IconSeal = () => (
   <svg {...base} aria-hidden="true">
     <circle cx="12" cy="9" r="5" />

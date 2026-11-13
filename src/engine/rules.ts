@@ -2,6 +2,7 @@
 // ce qui permettra de les exécuter côté serveur pour le multijoueur.
 import type {
   Answer,
+  Choice,
   Cond,
   Effect,
   LogEntry,
@@ -37,6 +38,9 @@ export function initialState(world: World): PlayerState {
     pendingReports: [],
     fired: [],
     news: [],
+    skills: {},
+    points: world.game.startPoints,
+    checks: {},
     learned: [],
     log: [],
     notes: [],
@@ -65,6 +69,32 @@ export function dateLabel(world: World, day: number): string {
   const c = calendar(world, day);
   return `Jour ${c.dayOfYear} de l'An ${c.year} · ${c.moons === 2 ? 'deux lunes' : 'une lune'}`;
 }
+
+// ——— Talents et jets ———
+
+export const SKILL_BASE = 1;
+export const SKILL_MAX = 6;
+
+export const skillLevel = (s: PlayerState, id: string) => SKILL_BASE + (s.skills[id] ?? 0);
+
+export function spendPoint(world: World, s: PlayerState, id: string): PlayerState {
+  if (s.points < 1 || skillLevel(s, id) >= SKILL_MAX || !world.skills.some((k) => k.id === id)) return s;
+  return { ...s, points: s.points - 1, skills: { ...s.skills, [id]: (s.skills[id] ?? 0) + 1 } };
+}
+
+/** Double un : échec quoi qu'il arrive. Double six : réussite quoi qu'il arrive. */
+export const rollSucceeds = (dice: [number, number], bonus: number, difficulty: number) =>
+  dice[0] + dice[1] === 2 ? false : dice[0] + dice[1] === 12 ? true : dice[0] + dice[1] + bonus >= difficulty;
+
+/** Chance de réussite, en pourcentage, sur les trente-six tirages possibles. */
+export function chance(bonus: number, difficulty: number): number {
+  let wins = 0;
+  for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) if (rollSucceeds([a, b], bonus, difficulty)) wins++;
+  return Math.round((wins / 36) * 100);
+}
+
+export const difficultyLabel = (d: number) =>
+  d <= 6 ? 'Aisé' : d <= 8 ? 'Ordinaire' : d <= 10 ? 'Malaisé' : d <= 12 ? 'Ardu' : d <= 14 ? 'Redoutable' : 'Presque impossible';
 
 // ——— Conditions ———
 
@@ -98,6 +128,8 @@ export function check(world: World, s: PlayerState, cond: Cond): boolean {
         return compare(c.word ? s.dossier.filter((d) => d.word === c.word).length : s.dossier.length, c.op, c.n);
       case 'uniform':
         return s.uniform === c.on;
+      case 'skill':
+        return compare(skillLevel(s, c.id), c.op, c.n);
       case 'visited':
         return s.visited.includes(c.place);
       case 'here':
@@ -218,6 +250,19 @@ export function apply(world: World, s: PlayerState, effects: Effect[]): Applied 
         if (!already) notices.push(`Savoir : ${lore.title}`);
         break;
       }
+      case 'points':
+        state = { ...state, points: state.points + e.n };
+        notices.push(e.n > 1 ? `${e.n} points de talent à répartir` : 'Un point de talent à répartir');
+        break;
+      case 'skill': {
+        const skill = world.skills.find((k) => k.id === e.id);
+        if (!skill) break;
+        const gain = Math.min(e.n, SKILL_MAX - skillLevel(state, e.id));
+        if (gain <= 0) break;
+        state = { ...state, skills: { ...state.skills, [e.id]: (state.skills[e.id] ?? 0) + gain } };
+        notices.push(`${skill.name} +${gain}`);
+        break;
+      }
       case 'scene': {
         const scene = world.scenes[e.id];
         const start = scene?.starts.find((st) => check(world, state, st.if) && scene.nodes[st.node]);
@@ -299,7 +344,14 @@ const logged = (a: Applied): Applied => ({
 /** Ouvre un passage : son texte entre dans le fil, ses effets s'appliquent. */
 function openNode(world: World, s: PlayerState, scene: Scene, node: string): Applied {
   const n = scene.nodes[node];
-  const base = say({ ...s, dialogue: { scene: scene.id, node } }, { k: 'text', speaker: n.speaker, text: n.text });
+  const voices = n.passives
+    .filter((p) => skillLevel(s, p.skill) >= p.level)
+    .map((p): LogEntry => ({ k: 'voice', speaker: world.skills.find((k) => k.id === p.skill)?.name, text: p.text }));
+  const base = say(
+    { ...s, dialogue: { scene: scene.id, node } },
+    { k: 'text', speaker: n.speaker, text: n.text },
+    ...voices,
+  );
   return apply(world, base, n.effects);
 }
 
@@ -318,23 +370,86 @@ export function startScene(world: World, s: PlayerState, sceneId: string): Appli
   return logged(openNode(world, { ...s, log: [] }, scene, start.node));
 }
 
+export interface TestView {
+  skill: string;
+  difficulty: number;
+  /** Niveau du talent, modificateurs compris. */
+  bonus: number;
+  chance: number;
+  /** Modificateurs qui s'appliquent en ce moment. */
+  mods: { value: number; text: string }[];
+  /** Déjà réussi : le choix se reprend sans relancer les dés. */
+  passed: boolean;
+  /** Déjà raté, et pas encore de quoi retenter. */
+  locked: boolean;
+  once: boolean;
+}
+
+function testView(world: World, s: PlayerState, k: string, test: NonNullable<Choice['test']>): TestView {
+  const mods = test.mods.filter((m) => check(world, s, m.if)).map((m) => ({ value: m.value, text: m.text }));
+  const level = skillLevel(s, test.skill);
+  const bonus = level + mods.reduce((n, m) => n + m.value, 0);
+  const prev = s.checks[k];
+  return {
+    skill: world.skills.find((x) => x.id === test.skill)?.name ?? test.skill,
+    difficulty: test.difficulty,
+    bonus,
+    chance: chance(bonus, test.difficulty),
+    mods,
+    passed: !!prev?.ok,
+    // Un jet raté se retente quand le talent a progressé, sauf s'il est « sans retour ».
+    locked: !!prev && !prev.ok && (test.once || level <= prev.level),
+    once: test.once,
+  };
+}
+
+const checkKey = (s: PlayerState, index: number) => `${s.dialogue!.scene}/${s.dialogue!.node}/${index}`;
+
 export function visibleChoices(world: World, s: PlayerState) {
   if (!s.dialogue) return [];
   const node = world.scenes[s.dialogue.scene]?.nodes[s.dialogue.node];
-  return (node?.choices ?? []).map((c, index) => ({ ...c, index })).filter((c) => check(world, s, c.if));
+  return (node?.choices ?? [])
+    .map((c, index) => ({ ...c, index, roll: c.test ? testView(world, s, checkKey(s, index), c.test) : undefined }))
+    .filter((c) => check(world, s, c.if));
 }
 
-/** index = position du choix dans le passage ; -1 pour clore un passage sans choix. */
-export function choose(world: World, s: PlayerState, index: number): Applied {
+/**
+ * index = position du choix dans le passage ; -1 pour clore un passage sans choix.
+ * `dice` : les deux dés tirés par l'interface, requis quand le choix porte un jet encore à tenter.
+ */
+export function choose(world: World, s: PlayerState, index: number, dice?: [number, number]): Applied {
   if (!s.dialogue) return same(s);
   const scene = world.scenes[s.dialogue.scene];
   const choice = scene?.nodes[s.dialogue.node]?.choices[index];
   if (!choice) return same({ ...s, dialogue: null });
   if (!check(world, s, choice.if)) return same(s);
-  const first = logged(apply(world, say({ ...s, dialogue: null }, { k: 'you', text: choice.text }), choice.effects));
+
+  let state = say({ ...s, dialogue: null }, { k: 'you', text: choice.text });
+  let ok = true;
+  if (choice.test) {
+    const k = checkKey(s, index);
+    const view = testView(world, s, k, choice.test);
+    if (view.locked) return same(s);
+    if (!view.passed) {
+      if (!dice) return same(s);
+      ok = rollSucceeds(dice, view.bonus, view.difficulty);
+      state = say(
+        { ...state, checks: { ...state.checks, [k]: { ok, level: skillLevel(s, choice.test.skill) } } },
+        {
+          k: 'roll',
+          ok,
+          speaker: view.skill,
+          text: `${ok ? 'Réussite' : 'Échec'} — ${dice[0]} et ${dice[1]} aux dés, ${view.bonus >= 0 ? '+' : ''}${view.bonus}, contre ${view.difficulty}`,
+        },
+      );
+    }
+  }
+  // Les effets d'un choix à jet ne valent qu'en cas de réussite.
+  const first = ok ? logged(apply(world, state, choice.effects)) : same(state);
+  const next = ok ? choice.next : choice.test?.fail;
   // Un effet « + scène » a pu ouvrir une autre scène : elle prend alors le pas.
-  if (!choice.next || first.state.dialogue) return first;
-  const second = logged(openNode(world, first.state, scene, choice.next));
+  if (!next || first.state.dialogue || !scene.nodes[next]) return first;
+  const second = logged(openNode(world, first.state, scene, next));
   return { state: second.state, notices: [...first.notices, ...second.notices] };
 }
 
@@ -475,6 +590,9 @@ export function repair(world: World, raw: unknown): PlayerState {
   s.pendingReports = arr(s.pendingReports).filter((id) => world.reports[id]);
   s.fired = arr(s.fired);
   s.news = arr(s.news).filter((id) => world.events.some((e) => e.id === id));
+  s.skills = Object.fromEntries(Object.entries(obj(s.skills)).filter(([id]) => world.skills.some((k) => k.id === id)));
+  s.points = Number.isFinite(s.points) && s.points >= 0 ? Math.floor(s.points) : 0;
+  s.checks = obj(s.checks);
   s.learned = arr(s.learned);
   s.log = arr(s.log);
   s.notes = arr(s.notes).filter((n) => n && world.maps[n.map]);

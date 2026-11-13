@@ -1,0 +1,40 @@
+// PROPOSITION — les talents du personnage, à renommer, retirer ou compléter librement.
+// Trois familles de trois talents. Chacun commence à 1 et monte jusqu'à 6.
+// Un jet lance deux dés, ajoute le talent, et compare à une difficulté :
+//   6 aisé · 8 ordinaire · 10 malaisé · 12 ardu · 14 redoutable · 16 presque impossible
+
+== COMPÉTENCE autorite : Autorité
+groupe : Le Verbe
+Faire peser l'uniforme. Obtenir qu'on obéisse sans avoir à dire pourquoi.
+
+== COMPÉTENCE eloquence : Éloquence
+groupe : Le Verbe
+Trouver les mots qui font parler, céder ou se taire.
+
+== COMPÉTENCE doctrine : Doctrine
+groupe : Le Verbe
+Connaître la parole d'Huma, et savoir la retourner contre qui la récite mal.
+
+== COMPÉTENCE vigilance : Vigilance
+groupe : Le Regard
+Voir ce qui est là : une pierre trop verte, une main qui tremble, une porte restée ouverte.
+
+== COMPÉTENCE lettres : Lettres
+groupe : Le Regard
+Lire les registres, les sceaux, les dates. Savoir ce qu'un papier dit et ce qu'il tait.
+
+== COMPÉTENCE doute : Doute
+groupe : Le Regard
+Entendre ce qui ne s'accorde pas dans ce qu'on vous affirme.
+
+== COMPÉTENCE sang-froid : Sang-froid
+groupe : Le Cœur
+Ne rien laisser paraître. Tenir quand la rue vous regarde.
+
+== COMPÉTENCE misericorde : Miséricorde
+groupe : Le Cœur
+Deviner ce qu'un autre endure, fût-il de ceux qu'on vous a appris à ne pas regarder.
+
+== COMPÉTENCE instinct : Instinct
+groupe : Le Cœur
+Sentir le danger, le mensonge ou la peur avant d'avoir une raison de le faire.

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { playable, world } from '../content';
+import { authorDefault, playable, rememberAuthor, world } from '../content';
 import * as rules from './rules';
 import type { Note, PlayerState } from './types';
 
@@ -14,7 +14,14 @@ interface Store {
   enter(): void;
   leave(): void;
   startScene(sceneId: string): void;
-  choose(index: number): void;
+  /** `dice` : les deux dés déjà tirés, quand le choix porte un jet. */
+  choose(index: number, dice?: [number, number]): void;
+  spendPoint(skillId: string): void;
+  author: boolean;
+  setAuthor(on: boolean): void;
+  /** Le contenu vient de changer (atelier) : l'état du joueur est réajusté au nouveau monde. */
+  refresh(): void;
+  rev: number;
   openTalk(personId: string): void;
   ask(topicId: string): void;
   closeTalk(): void;
@@ -57,7 +64,15 @@ export const useGame = create<Store>()(
         enter: () => act((p) => rules.enter(world, p)),
         leave: () => act((p) => rules.leave(world, p)),
         startScene: (id) => act((p) => rules.startScene(world, p, id)),
-        choose: (index) => act((p) => rules.choose(world, p, index)),
+        choose: (index, dice) => act((p) => rules.choose(world, p, index, dice)),
+        spendPoint: (id) => act((p) => rules.spendPoint(world, p, id)),
+        author: authorDefault,
+        setAuthor: (on) => {
+          rememberAuthor(on);
+          set({ author: on });
+        },
+        rev: 0,
+        refresh: () => set((s) => ({ player: rules.repair(world, s.player), rev: s.rev + 1 })),
         openTalk: (id) => act((p) => rules.openTalk(world, p, id)),
         ask: (topic) => act((p) => rules.ask(world, p, topic)),
         closeTalk: () => act((p) => rules.closeTalk(p)),

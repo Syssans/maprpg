@@ -23,6 +23,7 @@ function uses(world: World): Use[] {
     for (const n of Object.values(s.nodes)) {
       out.push({ src: n.src, effects: n.effects });
       n.choices.forEach((c) => out.push({ src: c.src, cond: c.if, effects: c.effects }));
+      n.choices.forEach((c) => c.test?.mods.forEach((m) => out.push({ src: m.src, cond: m.if })));
     }
   }
   for (const p of Object.values(world.people)) {
@@ -56,6 +57,7 @@ export function validate(world: World): Problem[] {
     return !!world.maps[m]?.places.some((x) => x.id === p);
   };
   const loreIds = new Set(world.lore.map((l) => l.id));
+  const skillIds = new Set(world.skills.map((k) => k.id));
 
   // ——— Jeu et cartes ———
   if (!world.game.startMap) err(nowhere, 'Aucun bloc « == JEU » n’indique la carte de départ (« départ : … »).');
@@ -104,7 +106,10 @@ export function validate(world: World): Problem[] {
     const walk = (id: string) => {
       if (reached.has(id) || !s.nodes[id]) return;
       reached.add(id);
-      s.nodes[id].choices.forEach((c) => c.next && walk(c.next));
+      s.nodes[id].choices.forEach((c) => {
+        if (c.next) walk(c.next);
+        if (c.test?.fail) walk(c.test.fail);
+      });
     };
     for (const st of s.starts) {
       if (!s.nodes[st.node]) err(st.src, `La scène « ${s.id} » débute par « ${st.node} », qui n'existe pas.`);
@@ -113,8 +118,18 @@ export function validate(world: World): Problem[] {
     for (const n of Object.values(s.nodes)) {
       if (!reached.has(n.id)) warn(n.src, `Le passage « ${n.id} » de la scène « ${s.id} » n'est atteint par aucun choix.`);
       if (!n.text) warn(n.src, `Le passage « ${n.id} » de la scène « ${s.id} » n'a pas de texte.`);
-      for (const c of n.choices)
+      for (const p of n.passives)
+        if (!skillIds.has(p.skill)) err(p.src, `Le talent « ${p.skill} » n'existe pas.`);
+      for (const c of n.choices) {
         if (c.next && !s.nodes[c.next]) err(c.src, `Le choix « ${c.text} » mène à « ${c.next} », qui n'existe pas dans la scène « ${s.id} ».`);
+        if (!c.test) continue;
+        if (!skillIds.has(c.test.skill)) err(c.src, `Le talent « ${c.test.skill} » n'existe pas.`);
+        if (!c.next || !c.test.fail) err(c.src, `Un jet mène à deux passages : « -> reussite / echec » (choix « ${c.text} »).`);
+        else if (!s.nodes[c.test.fail]) err(c.src, `L'échec du jet mène à « ${c.test.fail} », qui n'existe pas dans la scène « ${s.id} ».`);
+        if (c.test.difficulty < 3 || c.test.difficulty > 20) warn(c.src, `Une difficulté de ${c.test.difficulty} est hors de l'échelle utile (de 6, facile, à 16, presque impossible).`);
+      }
+      if (n.choices.length && n.choices.every((c) => c.test))
+        warn(n.src, `Le passage « ${n.id} » (scène « ${s.id} ») n'offre que des jets : un échec sans retour peut y enfermer le joueur.`);
       if (n.choices.length && n.choices.every((c) => c.if.length))
         warn(n.src, `Tous les choix du passage « ${n.id} » (scène « ${s.id} ») ont une condition : si aucune n'est remplie, la scène s'arrêtera là.`);
     }
@@ -166,6 +181,7 @@ export function validate(world: World): Problem[] {
         if (!world.reports[e.id]) err(u.src, `Le rapport « ${e.id} » n'existe pas.`);
       } else if (e.k === 'goto' && !placeExists(e.place)) err(u.src, `Le lieu « ${e.place} » n'existe pas.`);
       else if (e.k === 'scene' && !world.scenes[e.id]) err(u.src, `La scène « ${e.id} » n'existe pas.`);
+      else if (e.k === 'skill' && !skillIds.has(e.id)) err(u.src, `Le talent « ${e.id} » n'existe pas.`);
       else if (e.k === 'learn') {
         taught.add(e.id);
         if (!loreIds.has(e.id)) err(u.src, `« ${e.id} » n'est pas un sujet du Savoir.`);
@@ -179,6 +195,7 @@ export function validate(world: World): Problem[] {
       else if (c.k === 'quest') questCheck(u.src, c.id, c.stage);
       else if ((c.k === 'knows' || c.k === 'contradiction') && !loreIds.has(c.id))
         err(u.src, `« ${c.id} » n'est pas un sujet du Savoir.`);
+      else if (c.k === 'skill' && !skillIds.has(c.id)) err(u.src, `Le talent « ${c.id} » n'existe pas.`);
       else if (c.k === 'since' && !markersSet.has(c.id))
         err(u.src, `Le repère « ${c.id} » n'est posé nulle part (« + repère ${c.id} »).`);
       else if ((c.k === 'visited' || c.k === 'here') && !placeExists(c.place))

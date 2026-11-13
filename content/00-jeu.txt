@@ -14,6 +14,8 @@ jour : 1
 jours par an : 225
 // Nombre de lunes l'année du départ ; il alterne ensuite d'une année sur l'autre.
 lunes : 2
+// Points de talent à répartir en commençant.
+points de départ : 3
 
 // La carte est dessinée en 3072 px mais repérée sur une grille de 2000 x 1564 :
 // les positions des lieux se lisent sur cette grille.
