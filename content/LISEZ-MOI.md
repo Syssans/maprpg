@@ -16,7 +16,7 @@ Une **erreur** empêche de publier le jeu ; un **avertissement** mérite un coup
 
 Pour essayer en jouant, lancez `npm run dev`. L'onglet **Vous** contient alors un
 **mode auteur** : aller à n'importe quel lieu, ouvrir n'importe quel passage, changer
-le jour, cocher des faits, voir le dossier que l'Inquisition tient sur le joueur.
+le jour, cocher des faits et des sujets du Savoir, voir le dossier que l'Inquisition tient sur le joueur.
 Sur le jeu publié, ajoutez `?auteur` ou `#auteur` à l'adresse.
 
 ## Les règles communes
@@ -67,6 +67,7 @@ Un effet est une ligne qui commence par `+`. Il change l'état de la partie.
 | `+ dossier bavard : A parlé du puits.` | l'Inquisition note quelque chose (le joueur ne le voit pas) |
 | `+ rapport rue-basse` | le joueur devra rédiger ce rapport dès la fin de la scène |
 | `+ va monde/assise` | transporte le joueur dans ce lieu |
+| `+ savoir elfes` | inscrit ce sujet au Savoir du joueur |
 | `+ scène interrogatoire` | lance une autre scène (depuis un choix, une réponse ou un événement) |
 
 ## Les blocs
@@ -119,10 +120,15 @@ L'eau a tourné, Inquisiteur.
 [Ce que vous avez constaté | si fait puits_su | contredit] Le puits était gâté avant lui.
 ```
 
+Le codex est **vide au départ**. Un sujet n'y entre que lorsque le joueur le découvre :
+par un effet `+ savoir elfes` (dans une scène, une réponse, un événement), ou parce
+qu'une de ses versions conditionnelles devient vraie. Le vérificateur signale les
+sujets que rien ne fait découvrir.
+
 Chaque version commence par sa **source** entre crochets. On peut y ajouter une
 condition (`si …`) et le mot `contredit`, qui signale qu'elle ne s'accorde pas avec
 les autres. Une version acquise s'ajoute sous les précédentes sans les effacer.
-Tout sujet connu peut être abordé avec les personnes rencontrées.
+Tout sujet découvert peut être abordé avec les personnes rencontrées.
 
 ### Une personne
 
@@ -150,7 +156,6 @@ Il classe des feuilles sans lever les yeux.
 position : 718, 546
 région : Hautes Plaines
 chemins : terner (3), noctem (3)
-calque chatiments = impossible
 entre dans : courveil-ville
 Votre ville natale, sur le fleuve.
 [si quête convocation close] Votre ville natale. Vous n'y êtes plus chez vous.
@@ -180,18 +185,6 @@ noms imprimés : non
 L'image se dépose dans `public/maps/`. `entrée` est le lieu où l'on arrive, et le
 seul d'où l'on peut ressortir vers la carte `parent`. `noms imprimés : oui` évite
 d'écrire deux fois les noms déjà dessinés sur l'image.
-
-### Un calque
-
-```
-== CALQUE chatiments : Châtiment des Elfes
-valeur public : En place publique #7a2e22
-valeur interdit : Formellement interdit #2f4f6f
-```
-
-Un calque colore les lieux de la carte selon ce que le personnage en sait. Chaque
-lieu déclare sa valeur par `calque chatiments = public`, avec une condition si le
-personnage ne doit l'apprendre que plus tard.
 
 ### Un rapport
 

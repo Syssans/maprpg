@@ -16,10 +16,26 @@ export const IconQuill = () => (
   </svg>
 );
 
-export const IconLayers = () => (
+export const IconQuest = () => (
   <svg {...base} aria-hidden="true">
-    <path d="M12 3 3 8l9 5 9-5-9-5z" />
-    <path d="m3 13 9 5 9-5" />
+    <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 0 2 2H8a2 2 0 0 1-2-2V4z" />
+    <path d="M6 4a2 2 0 0 0-2 2v2h2" />
+    <path d="M10 9h5M10 13h5" />
+  </svg>
+);
+
+export const IconBag = () => (
+  <svg {...base} aria-hidden="true">
+    <path d="M6 9h12l1.5 9a2 2 0 0 1-2 2.3H6.5a2 2 0 0 1-2-2.3L6 9z" />
+    <path d="M9 9V7a3 3 0 0 1 6 0v2" />
+    <path d="M10 13h4" />
+  </svg>
+);
+
+export const IconSeal = () => (
+  <svg {...base} aria-hidden="true">
+    <circle cx="12" cy="9" r="5" />
+    <path d="m9 13.5-1.5 6.5 4.5-2.5 4.5 2.5-1.5-6.5" />
   </svg>
 );
 

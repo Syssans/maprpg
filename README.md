@@ -40,14 +40,14 @@ npm run dev
 - **Cartes à plusieurs niveaux** : une image, des lieux, des chemins dont la durée se compte en jours.
 - **Exploration** : on ne voit que les lieux visités et ceux qu'un chemin y relie.
 - **Scènes** à embranchements, avec conditions et conséquences.
-- **Savoir** : ce que le personnage croit, puis ce qu'il apprend ; les contradictions sont signalées.
+- **Savoir** : vide au départ, il se remplit de ce que le joueur découvre ; les contradictions sont signalées.
 - **Personnes** : tout sujet connu peut être abordé avec elles, et une contradiction leur être opposée.
 - **Temps** : calendrier de 225 jours à une ou deux lunes ; des événements datés surviennent sans attendre le joueur.
 - **Rapports** : après une opération, le joueur choisit ce qu'il déclare ; le journal garde l'écart.
 - **Dossier** : l'Inquisition note ce que fait le joueur, qui n'en devine que le poids. L'uniforme se porte ou s'ôte.
-- **Carte annotée** : notes du personnage sur les lieux, calques colorés (par exemple les châtiments).
+- **Carte annotée** : notes du personnage sur les lieux.
 - **Carnet** : le joueur écrit ses propres notes et les épingle sur la carte en les faisant glisser.
-- **Codex** : journal, savoir, besace, carnet et personnage réunis en un livre à signets.
+- **Codex** : quêtes, savoir, besace, carnet et personnage réunis en un livre, ouvert depuis la barre du bas ; la quête en cours reste affichée sur la carte.
 - **Fil des scènes** : ce qui s'est dit reste lisible au-dessus des réponses possibles.
 - **Socle** : sauvegarde automatique, export et import en fichier, reprise des anciennes sauvegardes, jeu hors connexion.
 - **Mode auteur** (onglet Vous, en développement ou avec `?auteur`) : aller partout, ouvrir tout passage, régler le jour et les faits.

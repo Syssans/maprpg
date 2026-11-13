@@ -21,3 +21,9 @@ Un inquisiteur de deuxième classe, entré dans les ordres trois ans avant vous.
 == ÉVÉNEMENT barques-allen : Des nouvelles de la côte [si jour >= 6]
 On le répète à l'étape et sur les marchés : des barques ont touché la côte d'Allen, pleines de gens qui ne savent pas dire ce qu'ils ont fui.
 + fait barques_allen
++ savoir estarec
+
+// Un événement sans texte passe inaperçu : celui-ci inscrit Bordemer au Savoir
+// dès que le joueur en foule les ruines.
+== ÉVÉNEMENT ruines-bordemer [si visité monde/bordemer]
++ savoir bordemer

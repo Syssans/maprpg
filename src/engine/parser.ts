@@ -141,6 +141,7 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
     if ((m = /^rapport (\S+)$/.exec(n))) return { k: 'report', id: m[1] };
     if ((m = /^va (\S+)$/.exec(n))) return { k: 'goto', place: m[1] };
     if ((m = /^scene (\S+)$/.exec(n))) return { k: 'scene', id: m[1] };
+    if ((m = /^savoir (\S+)$/.exec(n))) return { k: 'learn', id: m[1] };
     err(src, `Effet incompris : « ${s} ».`);
     return null;
   }
@@ -196,7 +197,6 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
     people: {},
     reports: {},
     events: [],
-    layers: {},
   };
   const places: { map: string; place: Place; routes: { to: string; days: number; src: Src }[] }[] = [];
   const seen = new Set<string>();
@@ -288,7 +288,6 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
           description: '',
           variants: [],
           notes: [],
-          layers: [],
           src: b.src,
         };
         const routes: { to: string; days: number; src: Src }[] = [];
@@ -310,8 +309,6 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
               if (r) routes.push({ to: r[1], days: r[2] ? +r[2] : 1, src: at(l) });
               else if (part.trim()) err(at(l), `Chemin incompris : « ${part.trim()} ». Exemple : « terner (3) ».`);
             }
-          } else if ((m = /^calque\s+(\S+)\s*=\s*(\S+)\s*(\[.*\])?$/.exec(n))) {
-            place.layers.push({ layer: m[1], value: m[2], if: takeCond(l.s, at(l)).cond, src: at(l) });
           } else if ((m = /^note\s*(\[[^\]]*\])?\s*:\s*(.*)$/i.exec(l.s))) {
             place.notes.push({ if: m[1] ? takeCond(m[1], at(l)).cond : [], text: m[2].trim(), src: at(l) });
           } else if ((m = bracket(l.s))) {
@@ -511,18 +508,6 @@ export function parse(files: SourceFile[]): { world: World; problems: Problem[] 
         for (const l of b.lines) (isEffect(l.s) ? effect(l, effects) : prose.add(l.s));
         if (!b.cond.length) warn(b.src, `L'événement « ${b.id} » n'a pas de condition « [si …] » : il surviendra dès le début.`);
         world.events.push({ id: b.id, title: b.title, if: b.cond, text: prose.text, effects, src: b.src });
-        break;
-      }
-
-      case 'calque': {
-        if (!needId()) break;
-        const values: Record<string, { label: string; color: string }> = {};
-        for (const l of b.lines) {
-          const m = /^valeur\s+(\S+)\s*:\s*(.*?)\s*(#[0-9a-f]{3,8})?$/i.exec(l.s);
-          if (m) values[ident(m[1])] = { label: m[2], color: m[3] ?? '#7a2e22' };
-          else if (l.s) err(at(l), 'Une ligne de calque s’écrit « valeur nom : Libellé #couleur ».');
-        }
-        world.layers[b.id] = { id: b.id, name: b.title || b.id, values, src: b.src };
         break;
       }
 

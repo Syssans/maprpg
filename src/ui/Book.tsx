@@ -1,20 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { world } from '../content';
 import * as rules from '../engine/rules';
 import { useGame } from '../engine/store';
-import type { ReportTag } from '../engine/types';
+import type { PlayerState, ReportTag } from '../engine/types';
 import { IconClose } from './icons';
 import { Prose } from './pages';
 import { You } from './You';
 
-export type BookTab = 'journal' | 'savoir' | 'besace' | 'carnet' | 'vous';
-const TABS: [BookTab, string][] = [
-  ['journal', 'Journal'],
+export type BookTab = 'quetes' | 'savoir' | 'besace' | 'carnet' | 'vous';
+export const TABS: [BookTab, string][] = [
+  ['quetes', 'Quêtes'],
   ['savoir', 'Savoir'],
   ['besace', 'Besace'],
   ['carnet', 'Carnet'],
   ['vous', 'Vous'],
 ];
+
+/** Empreinte de ce qu'une page contient : si elle change, la page a du nouveau. */
+export function signature(tab: BookTab, player: PlayerState): string {
+  if (tab === 'quetes')
+    return JSON.stringify([Object.entries(player.quests).map(([id, q]) => [id, q.stage, q.done]), Object.keys(player.reports)]);
+  if (tab === 'savoir') return rules.knownLore(world, player).map((l) => `${l.id}:${l.versions.length}`).join(',');
+  if (tab === 'besace') return Object.keys(player.inventory).join(',');
+  return '';
+}
 
 interface Props {
   tab: BookTab;
@@ -26,6 +35,11 @@ interface Props {
 
 /** Le codex : tout ce que le personnage porte sur lui, en un seul livre à signets. */
 export function Book({ tab, onTab, onClose, onOpenNote, author }: Props) {
+  const { player, markSeen } = useGame();
+  const sig = signature(tab, player);
+  useEffect(() => {
+    markSeen(tab, sig);
+  }, [tab, sig, markSeen]);
   return (
     <section className="book">
       <nav className="ribbons">
@@ -39,7 +53,7 @@ export function Book({ tab, onTab, onClose, onOpenNote, author }: Props) {
         </button>
       </nav>
       <div className="leaf" key={tab}>
-        {tab === 'journal' && <Journal />}
+        {tab === 'quetes' && <Journal />}
         {tab === 'savoir' && <Knowledge />}
         {tab === 'besace' && <Bag />}
         {tab === 'carnet' && <Notebook onOpenNote={onOpenNote} />}
@@ -54,13 +68,14 @@ const TAGS: Record<ReportTag, string> = { vrai: 'Vrai', faux: 'Faux', omis: 'Pas
 
 function Journal() {
   const { player } = useGame();
-  const quests = Object.entries(player.quests);
+  const all = Object.entries(player.quests).reverse();
+  const quests = [...all.filter(([, q]) => !q.done), ...all.filter(([, q]) => q.done)];
   const reports = Object.entries(player.reports);
   return (
     <>
-      <h2>Journal</h2>
+      <h2>Quêtes</h2>
       <Rule />
-      {quests.length === 0 && <p className="muted">Rien encore qui mérite d'être écrit.</p>}
+      {quests.length === 0 && <p className="muted">Aucune tâche ne vous a encore été confiée.</p>}
       {quests.map(([id, q]) => {
         const quest = world.quests[id];
         return (
@@ -104,6 +119,9 @@ function Knowledge() {
     <>
       <h2>Savoir</h2>
       <Rule />
+      {rules.knownLore(world, player).length === 0 && (
+        <p className="muted">Rien encore. Ce que vous apprendrez en chemin viendra s'inscrire ici.</p>
+      )}
       {rules.knownLore(world, player).map((l) => (
         <article key={l.id}>
           <h3>{l.title}</h3>

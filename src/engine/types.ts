@@ -34,7 +34,8 @@ export type Effect =
   | { k: 'dossier'; word: string; note?: string }
   | { k: 'report'; id: string }
   | { k: 'goto'; place: string }
-  | { k: 'scene'; id: string };
+  | { k: 'scene'; id: string }
+  | { k: 'learn'; id: string };
 
 export interface Place {
   id: string;
@@ -48,7 +49,6 @@ export interface Place {
   /** Annotations : toutes celles dont la condition est remplie s'ajoutent sous la description. */
   notes: { if: Cond; text: string; src: Src }[];
   enters?: string;
-  layers: { layer: string; value: string; if: Cond; src: Src }[];
   src: Src;
 }
 
@@ -144,13 +144,6 @@ export interface GameEvent {
   src: Src;
 }
 
-export interface Layer {
-  id: string;
-  name: string;
-  values: Record<string, { label: string; color: string }>;
-  src: Src;
-}
-
 export interface Lore {
   id: string;
   title: string;
@@ -194,7 +187,6 @@ export interface World {
   people: Record<string, Person>;
   reports: Record<string, Report>;
   events: GameEvent[];
-  layers: Record<string, Layer>;
 }
 
 export interface LogEntry {
@@ -233,6 +225,8 @@ export interface PlayerState {
   talk: { person: string } | null;
   /** Fil de la scène ou de la conversation en cours : tout ce qui s'y est dit, dans l'ordre. */
   log: LogEntry[];
+  /** Sujets du Savoir que le personnage a découverts en jeu. */
+  learned: string[];
   /** Notes du joueur, épinglées sur les cartes. */
   notes: Note[];
   /** Clés « personne/sujet » déjà abordées. */

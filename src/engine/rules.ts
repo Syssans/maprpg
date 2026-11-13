@@ -37,6 +37,7 @@ export function initialState(world: World): PlayerState {
     pendingReports: [],
     fired: [],
     news: [],
+    learned: [],
     log: [],
     notes: [],
   };
@@ -112,18 +113,30 @@ export interface KnownLore extends Lore {
   contradiction: boolean;
 }
 
-/** Les sujets dont le personnage sait quelque chose, réduits aux versions qu'il connaît. */
+/**
+ * Un sujet s'ouvre quand le personnage le découvre (« + savoir ») ou quand l'une de ses
+ * versions conditionnelles devient vraie. Tant qu'il est fermé, le joueur n'en voit rien.
+ */
+const visibleVersions = (world: World, s: PlayerState, l: Lore) => {
+  const earned = l.versions.filter((v) => v.if.length > 0 && check(world, s, v.if));
+  if (!earned.length && !s.learned.includes(l.id)) return [];
+  return l.versions.filter((v) => v.if.length === 0 || earned.includes(v));
+};
+
+/** Les sujets que le personnage a découverts, réduits aux versions qu'il connaît. */
 export function knownLore(world: World, s: PlayerState): KnownLore[] {
   return world.lore
     .map((l) => {
-      const versions = l.versions.filter((v) => check(world, s, v.if));
+      const versions = visibleVersions(world, s, l);
       return { ...l, versions, contradiction: versions.length > 1 && versions.some((v) => v.contradicts) };
     })
     .filter((l) => l.versions.length > 0);
 }
 
-const knows = (world: World, s: PlayerState, id: string) =>
-  !!world.lore.find((l) => l.id === id)?.versions.some((v) => check(world, s, v.if));
+const knows = (world: World, s: PlayerState, id: string) => {
+  const l = world.lore.find((x) => x.id === id);
+  return !!l && visibleVersions(world, s, l).length > 0;
+};
 
 // ——— Effets ———
 
@@ -197,6 +210,14 @@ export function apply(world: World, s: PlayerState, effects: Effect[]): Applied 
         if (world.maps[m]?.places.some((x) => x.id === p)) state = arrive(state, m, p);
         break;
       }
+      case 'learn': {
+        const lore = world.lore.find((l) => l.id === e.id);
+        if (!lore || state.learned.includes(e.id)) break;
+        const already = knows(world, state, e.id);
+        state = { ...state, learned: [...state.learned, e.id] };
+        if (!already) notices.push(`Savoir : ${lore.title}`);
+        break;
+      }
       case 'scene': {
         const scene = world.scenes[e.id];
         const start = scene?.starts.find((st) => check(world, state, st.if) && scene.nodes[st.node]);
@@ -237,12 +258,6 @@ export function describe(world: World, s: PlayerState, place: Place): { text: st
     text: place.variants.find((v) => check(world, s, v.if))?.text ?? place.description,
     notes: place.notes.filter((n) => check(world, s, n.if)).map((n) => n.text),
   };
-}
-
-/** Valeur connue du joueur pour ce lieu sur ce calque. */
-export function layerValue(world: World, s: PlayerState, place: Place, layerId: string) {
-  const entry = place.layers.find((l) => l.layer === layerId && check(world, s, l.if));
-  return entry ? world.layers[layerId]?.values[entry.value] : undefined;
 }
 
 export function travel(world: World, s: PlayerState, placeId: string): PlayerState {
@@ -460,6 +475,7 @@ export function repair(world: World, raw: unknown): PlayerState {
   s.pendingReports = arr(s.pendingReports).filter((id) => world.reports[id]);
   s.fired = arr(s.fired);
   s.news = arr(s.news).filter((id) => world.events.some((e) => e.id === id));
+  s.learned = arr(s.learned);
   s.log = arr(s.log);
   s.notes = arr(s.notes).filter((n) => n && world.maps[n.map]);
   return s;

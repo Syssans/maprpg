@@ -22,11 +22,3 @@ image : maps/monde.jpg
 taille : 2000 x 1564
 entrée : courveil
 noms imprimés : oui
-
-// Ce que l'inquisiteur sait de la façon dont on châtie les Elfes, ville par ville.
-== CALQUE chatiments : Châtiment des Elfes
-valeur public : En place publique #7a2e22
-valeur possible : Possible #b5651d
-valeur mal-vu : Très mal vu #6d7f4f
-valeur impossible : Hors de portée #5d6d7e
-valeur interdit : Formellement interdit #2f4f6f

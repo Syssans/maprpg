@@ -204,6 +204,22 @@ function Author() {
         ))}
       </div>
 
+      <small className="eyebrow">Savoir découvert</small>
+      <div className="flags">
+        {world.lore.map((l) => (
+          <label key={l.id}>
+            <input
+              type="checkbox"
+              checked={player.learned.includes(l.id)}
+              onChange={(e) =>
+                set({ learned: e.target.checked ? [...player.learned, l.id] : player.learned.filter((x) => x !== l.id) })
+              }
+            />
+            {l.id}
+          </label>
+        ))}
+      </div>
+
       <small className="eyebrow">Dossier tenu par l'Inquisition ({player.dossier.length})</small>
       {player.dossier.map((d, i) => (
         <p key={i} className="problem">

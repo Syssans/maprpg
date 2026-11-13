@@ -1,5 +1,7 @@
-// Ce que le personnage sait. Le savoir de départ est la version d'Huma, dite avec ses mots à elle.
-// Chaque sujet connu peut être abordé avec les personnes rencontrées.
+// Le Savoir. Le codex est vide au départ : un sujet n'y entre que lorsque le joueur le
+// découvre, par un effet « + savoir sujet » ou parce qu'une de ses versions conditionnelles
+// devient vraie. La version « enseignée » est celle d'Huma, dite avec ses mots à elle.
+// Chaque sujet découvert peut être abordé avec les personnes rencontrées.
 
 == SAVOIR huma : Huma
 [Ce qu'on vous a enseigné] Fille d'Olre, qui est le soleil. Mère des Hommes, protectrice de l'Humanité. Vous dites son nom chaque matin.

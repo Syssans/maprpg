@@ -14,8 +14,6 @@ interface Props {
   current: string;
   reachable: string[];
   selected: string | null;
-  /** Couleur du calque actif pour chaque lieu dont la valeur est connue. */
-  tint: Record<string, string>;
   /** Lieux portant une annotation du personnage. */
   noted: Set<string>;
   /** Hauteur du panneau qui recouvre le bas de la carte, tenue à jour par l'appelant. */
@@ -27,7 +25,7 @@ interface Props {
 }
 
 export const MapView = forwardRef<MapHandle, Props>(function MapView(
-  { map, known, current, reachable, selected, tint, noted, inset, notes, onMoveNote, onOpenNote, onSelect },
+  { map, known, current, reachable, selected, noted, inset, notes, onMoveNote, onOpenNote, onSelect },
   handle,
 ) {
   const el = useRef<HTMLDivElement>(null);
@@ -119,7 +117,6 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(
         p.id === selected && 'is-selected',
         reachable.includes(p.id) && 'is-reachable',
         p.enters && 'is-gate',
-        tint[p.id] && 'is-tinted',
         noted.has(p.id) && 'is-noted',
       ]
         .filter(Boolean)
@@ -127,7 +124,6 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(
       const root = document.createElement('div');
       root.className = classes;
       const dot = document.createElement('i');
-      if (tint[p.id]) dot.style.setProperty('--tint', tint[p.id]);
       const label = document.createElement('span');
       const labelled = !map.printedLabels || p.id === current || p.id === selected || reachable.includes(p.id);
       if (labelled) label.textContent = p.name;
@@ -139,7 +135,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(
         })
         .addTo(group);
     }
-  }, [map, known, current, reachable, selected, tint, noted]);
+  }, [map, known, current, reachable, selected, noted]);
 
   // Notes du joueur : des étiquettes que l'on déplace en les faisant glisser.
   useEffect(() => {

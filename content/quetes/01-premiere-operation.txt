@@ -19,6 +19,8 @@ début rue [si quête operation = rue]
 Au bureau, votre premier ordre de mission vous attend, plié en quatre. Une dénonciation, rue Basse : un Elfe y aurait gâté le puits. On vous donne quatre hommes et la journée.
 + objet ordre
 + quête operation = rue
++ savoir inquisition
++ savoir elfes
 > Se rendre rue Basse. -> rue
 > Plus tard.
 
@@ -54,6 +56,7 @@ Il ouvre avant le second coup. Il a déjà son manteau sur les épaules. « C'es
 
 --- arrete
 Il vous suit sans que vos hommes aient à le toucher. Derrière vous, la rue applaudit. Il répondra du puits comme un Homme en répondrait, et il paiera trois fois. Vous êtes officier d'Huma, et la journée n'est pas finie.
++ savoir chatiments
 
 --- classe
 Vos hommes se regardent. La voisine vous regarde. Il vous reste à l'écrire, et vous savez déjà qu'on vous demandera pourquoi.

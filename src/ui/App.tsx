@@ -1,9 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { authorMode, world } from '../content';
 import * as rules from '../engine/rules';
 import { useGame } from '../engine/store';
-import { Book, type BookTab } from './Book';
-import { IconBook, IconFold, IconLayers, IconQuill } from './icons';
+import { Book, signature, type BookTab } from './Book';
+import { IconBag, IconBook, IconFold, IconQuest, IconQuill, IconSeal } from './icons';
 import { MapView, type MapHandle } from './MapView';
 import { Conversation, NewsView, NoteEditor, ReportView } from './pages';
 
@@ -11,7 +11,6 @@ export function App() {
   const game = useGame();
   const { player } = game;
   const [selected, setSelected] = useState<string | null>(null);
-  const [layerId, setLayerId] = useState<string | null>(null);
   const [book, setBook] = useState<BookTab | null>(null);
   const [folded, setFolded] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
@@ -26,17 +25,6 @@ export function App() {
     () => new Set(map.places.filter((p) => rules.describe(world, player, p).notes.length).map((p) => p.id)),
     [map, player],
   );
-  const layer = layerId ? world.layers[layerId] : null;
-  const tint = useMemo(() => {
-    const out: Record<string, string> = {};
-    if (layer)
-      for (const p of map.places) {
-        const v = rules.layerValue(world, player, p, layer.id);
-        if (v) out[p.id] = v.color;
-      }
-    return out;
-  }, [map, player, layer]);
-
   useEffect(() => {
     setSelected(null);
   }, [map.id]);
@@ -61,8 +49,21 @@ export function App() {
   const isHere = place.id === current;
   const route = routes.find((r) => r.id === place.id);
   const { text, notes } = rules.describe(world, player, place);
-  const layerHere = layer && rules.layerValue(world, player, place, layer.id);
-  const layerIds = Object.keys(world.layers);
+
+  // La quête en cours la plus récente reste affichée sur la carte.
+  const active = Object.entries(player.quests)
+    .reverse()
+    .find(([, q]) => !q.done);
+  const dock: [BookTab, string, ReactNode][] = [
+    ['quetes', 'Quêtes', <IconQuest />],
+    ['savoir', 'Savoir', <IconBook />],
+    ['besace', 'Besace', <IconBag />],
+    ['carnet', 'Carnet', <IconQuill />],
+  ];
+  const fresh = (tab: BookTab) => {
+    const sig = signature(tab, player);
+    return sig !== '' && sig !== '[[],[]]' && game.seen[tab] !== sig;
+  };
 
   // Ce qui doit être lu ou réglé avant de reprendre la main, par ordre de priorité.
   const overlay = player.news.length ? (
@@ -84,7 +85,6 @@ export function App() {
         current={current}
         reachable={reachable}
         selected={selected}
-        tint={tint}
         noted={noted}
         inset={inset}
         notes={player.notes}
@@ -98,33 +98,24 @@ export function App() {
           <small>{rules.dateLabel(world, player.day)}</small>
           <strong>{map.name}</strong>
         </div>
-        {rules.canLeave(world, player) && free && <button onClick={game.leave}>Quitter les lieux</button>}
+        {free && (
+          <button className="self" onClick={() => setBook('vous')} aria-label="Votre personnage">
+            <IconSeal />
+          </button>
+        )}
       </header>
 
-      {free && layer && (
-        <ul className="legend">
-          <li className="legend-title">{layer.name}</li>
-          {Object.values(layer.values).map((v) => (
-            <li key={v.label}>
-              <i style={{ background: v.color }} />
-              {v.label}
-            </li>
-          ))}
-        </ul>
+      {free && active && (
+        <button className="tracker" onClick={() => setBook('quetes')}>
+          <small>Quête en cours</small>
+          <span>{world.quests[active[0]].title}</span>
+        </button>
       )}
 
       {free && (
         <div className="hud" ref={hud}>
           <div className="tools">
-            {layerIds.length > 0 && (
-              <button
-                className={layer ? 'on' : ''}
-                onClick={() => setLayerId(layerIds[layerIds.indexOf(layerId ?? '') + 1] ?? null)}
-              >
-                <IconLayers />
-                <span>Calques</span>
-              </button>
-            )}
+            {rules.canLeave(world, player) && <button onClick={game.leave}>Quitter les lieux</button>}
             <button
               onClick={() => {
                 const c = mapRef.current?.center() ?? { x: map.width / 2, y: map.height / 2 };
@@ -132,11 +123,7 @@ export function App() {
               }}
             >
               <IconQuill />
-              <span>Noter</span>
-            </button>
-            <button onClick={() => setBook('journal')}>
-              <IconBook />
-              <span>Codex</span>
+              <span>Noter sur la carte</span>
             </button>
           </div>
 
@@ -148,18 +135,14 @@ export function App() {
             <h2>{place.name}</h2>
             {!folded && (
               <>
-                <p>{text}</p>
-                {layerHere && (
-                  <p className="layer-value">
-                    <i style={{ background: layerHere.color }} />
-                    {layer!.name} : {layerHere.label.toLowerCase()}
-                  </p>
-                )}
-                {notes.map((n, i) => (
-                  <p key={i} className="margin-note">
-                    {n}
-                  </p>
-                ))}
+                <div className="card-text">
+                  <p>{text}</p>
+                  {notes.map((n, i) => (
+                    <p key={i} className="margin-note">
+                      {n}
+                    </p>
+                  ))}
+                </div>
                 <div className="actions">
                   {!isHere && route && (
                     <button
@@ -194,6 +177,16 @@ export function App() {
               </>
             )}
           </section>
+
+          <nav className="dock">
+            {dock.map(([id, label, icon]) => (
+              <button key={id} onClick={() => setBook(id)}>
+                {icon}
+                <span>{label}</span>
+                {fresh(id) && <i aria-label="Du nouveau" />}
+              </button>
+            ))}
+          </nav>
         </div>
       )}
 

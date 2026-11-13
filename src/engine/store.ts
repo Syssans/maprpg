@@ -7,6 +7,9 @@ import type { Note, PlayerState } from './types';
 interface Store {
   player: PlayerState;
   notices: string[];
+  /** Ce que le joueur a déjà vu de chaque page du codex : sert à signaler les nouveautés. */
+  seen: Record<string, string>;
+  markSeen(tab: string, signature: string): void;
   travel(placeId: string): void;
   enter(): void;
   leave(): void;
@@ -48,6 +51,8 @@ export const useGame = create<Store>()(
       return {
         player: start(),
         notices: [],
+        seen: {},
+        markSeen: (tab, signature) => set((s) => (s.seen[tab] === signature ? s : { seen: { ...s.seen, [tab]: signature } })),
         travel: (placeId) => act((p) => rules.travel(world, p, placeId)),
         enter: () => act((p) => rules.enter(world, p)),
         leave: () => act((p) => rules.leave(world, p)),
@@ -72,16 +77,17 @@ export const useGame = create<Store>()(
         deleteNote: (id) =>
           set((s) => ({ player: { ...s.player, notes: s.player.notes.filter((n) => n.id !== id) } })),
         clearNotices: () => set({ notices: [] }),
-        reset: () => set({ player: start(), notices: [] }),
+        reset: () => set({ player: start(), notices: [], seen: {} }),
         load: (raw) => act(() => rules.repair(world, raw)),
       };
     },
     {
       name: 'sanctuaire-sauvegarde',
-      partialize: (s) => ({ player: s.player }),
+      partialize: (s) => ({ player: s.player, seen: s.seen }),
       // Une sauvegarde ancienne est remise d'aplomb plutôt que jetée.
       merge: (saved, current) => ({
         ...current,
+        seen: (saved as { seen?: Record<string, string> } | undefined)?.seen ?? {},
         player: playable ? rules.repair(world, (saved as { player?: unknown } | undefined)?.player) : current.player,
       }),
     },

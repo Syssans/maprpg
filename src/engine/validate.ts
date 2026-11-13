@@ -16,7 +16,6 @@ function uses(world: World): Use[] {
     for (const p of m.places) {
       p.variants.forEach((v) => out.push({ src: v.src, cond: v.if }));
       p.notes.forEach((v) => out.push({ src: v.src, cond: v.if }));
-      p.layers.forEach((v) => out.push({ src: v.src, cond: v.if }));
     }
   for (const l of world.lore) l.versions.forEach((v) => out.push({ src: v.src, cond: v.if }));
   for (const s of Object.values(world.scenes)) {
@@ -90,11 +89,6 @@ export function validate(world: World): Problem[] {
       }
       if (m.places.length > 1 && !m.routes.some((r) => r.a === p.id || r.b === p.id))
         warn(p.src, `Le lieu « ${p.id} » n'est relié à aucun autre : on ne peut ni y aller ni en partir à pied.`);
-      for (const l of p.layers) {
-        const layer = world.layers[l.layer];
-        if (!layer) err(l.src, `Le calque « ${l.layer} » n'existe pas.`);
-        else if (!layer.values[l.value]) err(l.src, `Le calque « ${l.layer} » n'a pas de valeur « ${l.value} ».`);
-      }
     }
   }
 
@@ -152,6 +146,7 @@ export function validate(world: World): Problem[] {
   const flagsRead = new Map<string, Src>();
   const markersSet = new Set<string>();
   const questsStarted = new Set<string>();
+  const taught = new Set<string>();
   const all = uses(world);
   const questCheck = (src: Src, id: string, stage?: string) => {
     const q = world.quests[id];
@@ -171,6 +166,10 @@ export function validate(world: World): Problem[] {
         if (!world.reports[e.id]) err(u.src, `Le rapport « ${e.id} » n'existe pas.`);
       } else if (e.k === 'goto' && !placeExists(e.place)) err(u.src, `Le lieu « ${e.place} » n'existe pas.`);
       else if (e.k === 'scene' && !world.scenes[e.id]) err(u.src, `La scène « ${e.id} » n'existe pas.`);
+      else if (e.k === 'learn') {
+        taught.add(e.id);
+        if (!loreIds.has(e.id)) err(u.src, `« ${e.id} » n'est pas un sujet du Savoir.`);
+      }
     }
   }
   for (const u of all) {
@@ -194,7 +193,11 @@ export function validate(world: World): Problem[] {
     if (!questsStarted.has(q.id)) warn(q.src, `Rien ne commence la quête « ${q.id} ».`);
     if (!Object.keys(q.stages).length) err(q.src, `La quête « ${q.id} » n'a aucune étape.`);
   }
-  for (const l of world.lore) if (!l.versions.length) err(l.src, `Le sujet « ${l.id} » n'a aucune version.`);
+  for (const l of world.lore) {
+    if (!l.versions.length) err(l.src, `Le sujet « ${l.id} » n'a aucune version.`);
+    else if (!taught.has(l.id) && l.versions.every((v) => !v.if.length))
+      warn(l.src, `Rien ne fait découvrir le sujet « ${l.id} » (« + savoir ${l.id} ») : le joueur ne le verra jamais.`);
+  }
 
   return problems;
 }
